@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIMORA - Alur Tujuan Pembelajaran & Tes</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- 1. LANDING PAGE SCREEN -->
+    <div id="screen-landing" class="full-screen-view active">
+        <button class="audio-toggle" id="btn-audio-toggle" aria-label="Aktifkan atau nonaktifkan suara">
+            <svg class="audio-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+            <svg class="audio-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        </button>
+        <div class="landing-container card glass">
+            <div class="landing-logo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+            </div>
+            <h1 class="landing-title">SIMORA</h1>
+            <p class="landing-tagline">Sistem Monitoring dan Evaluasi Pembelajaran Interaktif</p>
+            <button class="btn-primary landing-btn" id="btn-landing-start">
+                Mulai Petualangan Belajar
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- 2. LOGIN SCREEN -->
+    <div id="screen-login" class="full-screen-view">
+        <div class="landing-container card glass" style="max-width: 400px; padding: 32px;" id="login-card">
+            <button class="btn-back" id="btn-login-back">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                Kembali
+            </button>
+            <div class="landing-logo" style="margin-top: 20px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+            </div>
+            <h2 style="font-family: var(--font-heading); font-size: 1.8rem; margin-bottom: 8px; text-align: center;">Masuk Akun</h2>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 24px; text-align: center;">Masukkan nama pengguna dan kata sandi Anda</p>
+            
+            <form id="login-form" onsubmit="event.preventDefault();">
+                <div class="form-group">
+                    <label class="form-label" for="login-username">Username</label>
+                    <input class="form-input" type="text" id="login-username" placeholder="Masukkan username" autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="login-password">Password</label>
+                    <div class="password-field">
+                        <input class="form-input" type="password" id="login-password" placeholder="Masukkan password" autocomplete="current-password">
+                        <button type="button" class="password-toggle" id="login-password-toggle" aria-label="Lihat password">
+                            <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="login-error" id="login-error" role="alert" style="display: none;"></div>
+                <button type="submit" class="btn-primary landing-btn" style="width: 100%; margin-top: 16px;">
+                    Masuk ke Sistem
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. ONBOARDING SCREEN -->
+    <div id="screen-onboarding" class="full-screen-view">
+        <div class="landing-container card glass" style="max-width: 500px; padding: 40px; text-align: center;">
+            <div class="wave-hand" style="font-size: 4rem; margin-bottom: 16px;">👋</div>
+            <h2 style="font-family: var(--font-heading); font-size: 1.8rem; margin-bottom: 8px;">Selamat Datang!</h2>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 32px;">
+                Akun Anda berhasil masuk. Sebelum memulai aktivitas belajar di Dashboard, kami menyarankan Anda untuk membaca panduan penggunaan platform SIMORA terlebih dahulu.
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 14px; width: 100%;">
+                <button class="btn-primary" id="btn-onboarding-guide" style="background: linear-gradient(135deg, var(--secondary), #ec4899); justify-content: center; width: 100%;">
+                    📖 Baca Panduan Penggunaan
+                </button>
+                <button class="btn-primary" id="btn-onboarding-dashboard" style="justify-content: center; width: 100%;">
+                    💻 Masuk ke Dashboard
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. PANDUAN PAGE (Standalone) -->
+    <div id="screen-panduan" class="full-screen-view">
+        <div class="landing-container card glass" style="max-width: 1080px; padding: 40px; margin: 0 auto; align-items: stretch; text-align: left;">
+            <button class="btn-back" id="btn-panduan-back">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                Kembali
+            </button>
+            <div style="text-align: center; margin-bottom: 8px;">
+                <span style="font-size: 3rem;">📖</span>
+            </div>
+            <h2 style="font-family: var(--font-heading); font-size: 1.8rem; margin-bottom: 8px; text-align: center;">Panduan Penggunaan SIMORA</h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 24px; text-align: center;">Petunjuk umum penggunaan media pembelajaran interaktif SIMORA.</p>
+
+            <div class="shop-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                <button class="card glass" data-panduan="pengantar" style="cursor: pointer; border: none; text-align: left; display: flex; flex-direction: column; gap: 8px; padding: 24px 20px;">
+                    <span style="font-size: 2.2rem;">👋</span>
+                    <span style="font-weight: 800; font-family: var(--font-heading); font-size: 1.15rem;">Pengantar</span>
+                    <span style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">Petunjuk umum penggunaan media pembelajaran SIMORA.</span>
+                </button>
+                <button class="card glass" data-panduan="navigasi" style="cursor: pointer; border: none; text-align: left; display: flex; flex-direction: column; gap: 8px; padding: 24px 20px;">
+                    <span style="font-size: 2.2rem;">🧭</span>
+                    <span style="font-weight: 800; font-family: var(--font-heading); font-size: 1.15rem;">Navigasi</span>
+                    <span style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">Fungsi tiap menu & ikon pada SIMORA.</span>
+                </button>
+                <button class="card glass" data-panduan="isi" style="cursor: pointer; border: none; text-align: left; display: flex; flex-direction: column; gap: 8px; padding: 24px 20px;">
+                    <span style="font-size: 2.2rem;">🗂️</span>
+                    <span style="font-weight: 800; font-family: var(--font-heading); font-size: 1.15rem;">Isi Menu</span>
+                    <span style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">Penjelasan lengkap tiap halaman: ATP, Beginner, Practice, Expert, dan lainnya.</span>
+                </button>
+                <button class="card glass" data-panduan="gamifikasi" style="cursor: pointer; border: none; text-align: left; display: flex; flex-direction: column; gap: 8px; padding: 24px 20px;">
+                    <span style="font-size: 2.2rem;">🏆</span>
+                    <span style="font-weight: 800; font-family: var(--font-heading); font-size: 1.15rem;">Sistem Gamifikasi</span>
+                    <span style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">XP, level, streak, dan aturan main Point Rush.</span>
+                </button>
+            </div>
+
+            <button class="btn-primary" id="btn-panduan-start" style="justify-content: center; width: 100%; margin-top: 28px;">
+                💻 Masuk ke Dashboard
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+        </div>
+
+        <!-- Panduan Info Modal -->
+        <div class="quest-overlay" id="panduan-overlay">
+            <div class="quest-overlay-content glass" style="max-width: 640px; text-align: left;">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px;">
+                    <h3 id="panduan-modal-title" style="font-size: 1.3rem; margin: 0;"></h3>
+                    <button class="btn-exit-quiz" id="btn-panduan-modal-close" aria-label="Tutup">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                <div id="panduan-modal-body"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP WORKSPACE CONTAINER -->
+    <div class="app-layout" id="app-workspace" style="display: none;">
+        <!-- Sidebar Navigation (Desktop) -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                </div>
+                <span class="brand-name">SIMORA</span>
+            </div>
+            
+            <nav class="nav-menu">
+                <button class="nav-item active" data-target="dashboard">
+                    <span class="icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    </span>
+                    <span class="label">Dashboard</span>
+                </button>
+                <button class="nav-item" data-target="atp">
+                    <span class="icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20M4 19.5V3.5A2.5 2.5 0 0 1 6.5 1H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5z"/></svg>
+                    </span>
+                    <span class="label">ATP</span>
+                </button>
+                <button class="nav-item" data-target="beginner">
+                    <span class="icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+                    </span>
+                    <span class="label">Beginner</span>
+                </button>
+                <button class="nav-item" data-target="practice">
+                    <span class="icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    </span>
+                    <span class="label">Practice</span>
+                </button>
+                <button class="nav-item" data-target="expert">
+                    <span class="icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    </span>
+                    <span class="label">Expert</span>
+                </button>
+                <button class="nav-item" data-target="progres">
+                    <span class="icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    </span>
+                    <span class="label">Progres</span>
+                </button>
+                
+                <!-- Divider for Secondary Menu -->
+                <div style="margin: 20px 0 10px; border-top: 1px dashed var(--border-color); opacity: 0.5;"></div>
+                
+                <button class="nav-item nav-item-small" data-target="referensi">
+                    <span class="icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                    </span>
+                    <span class="label" style="font-size: 0.85rem;">Referensi</span>
+                </button>
+                <button class="nav-item nav-item-small" data-target="profil">
+                    <span class="icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </span>
+                    <span class="label" style="font-size: 0.85rem;">Profil Pengembang</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer" style="display: flex; flex-direction: column; gap: 8px;">
+                <button id="logout-btn" class="btn-logout" style="color: var(--danger);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    Keluar Akun
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Workspace Area -->
+        <main class="main-content">
+            <!-- Screen View Controller -->
+            <div class="views-container">
+                <!-- 1. DASHBOARD VIEW -->
+                <section id="view-dashboard" class="app-view">
+                    <div class="view-header">
+                        <h2>Dashboard</h2>
+                        <p>Selamat datang di SIMORA! Pilih menu untuk melanjutkan pembelajaranmu.</p>
+                    </div>
+                    <div id="dashboard-container"></div>
+                </section>
+
+                <!-- 2. ATP VIEW -->
+                <section id="view-atp" class="app-view active">
+                    <div class="view-header">
+                        <h2>Alur Tujuan Pembelajaran</h2>
+                        <p>Pilih topik untuk melihat rincian elemen, capaian pembelajaran, dan tujuan pembelajaran.</p>
+                    </div>
+
+                    <!-- 3 card pilihan -->
+                    <div class="shop-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+                        <button class="card glass" data-atp="elemen" style="cursor: pointer; border: none; text-align: left; display: flex; flex-direction: column; gap: 8px; padding: 24px 20px;">
+                            <span style="font-size: 2.2rem;">🧩</span>
+                            <span style="font-weight: 800; font-family: var(--font-heading); font-size: 1.15rem;">Elemen</span>
+                            <span style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">Elemen keilmuan yang menjadi dasar pembelajaran materi notula rapat.</span>
+                        </button>
+                        <button class="card glass" data-atp="cp" style="cursor: pointer; border: none; text-align: left; display: flex; flex-direction: column; gap: 8px; padding: 24px 20px;">
+                            <span style="font-size: 2.2rem;">🎯</span>
+                            <span style="font-weight: 800; font-family: var(--font-heading); font-size: 1.15rem;">Capaian Pembelajaran (CP)</span>
+                            <span style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">Kompetensi akhir yang harus dicapai peserta didik pada Fase F.</span>
+                        </button>
+                        <button class="card glass" data-atp="tp" style="cursor: pointer; border: none; text-align: left; display: flex; flex-direction: column; gap: 8px; padding: 24px 20px;">
+                            <span style="font-size: 2.2rem;">🗺️</span>
+                            <span style="font-weight: 800; font-family: var(--font-heading); font-size: 1.15rem;">Tujuan Pembelajaran (TP)</span>
+                            <span style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">Tahapan capaian yang dirinci menjadi TP-01 sampai TP-03.</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- 2. BEGINNER VIEW -->
+                <section id="view-beginner" class="app-view">
+                    <div class="view-header">
+                        <h2>Beginner Level</h2>
+                        <p>Pilih menu untuk mempelajari notula rapat sebelum menuju Practice Level.</p>
+                    </div>
+
+                    <!-- Menu pilihan awal -->
+                    <div id="beginner-menu">
+                        <div class="panduan-grid">
+                            <button class="card glass menu-option" id="btn-beginner-materi">
+                                <span style="font-size: 2.2rem;">📖</span>
+                                <h3 style="font-size: 1.2rem;">Materi</h3>
+                                <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6;">Pelajari definisi, fungsi, dan tips membuat notula rapat.</p>
+                            </button>
+                            <button class="card glass menu-option" id="btn-beginner-contoh">
+                                <span style="font-size: 2.2rem;">📝</span>
+                                <h3 style="font-size: 1.2rem;">Contoh Notula Rapat</h3>
+                                <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6;">Lihat contoh format notula rapat yang lengkap dan benar.</p>
+                            </button>
+                        </div>
+                        <button class="btn-primary" id="btn-beginner-to-practice" style="justify-content: center; margin-top: 24px;">
+                            Lanjut ke Practice Level
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </button>
+                    </div>
+
+                    <!-- Sub halaman: Materi -->
+                    <div id="beginner-materi" style="display: none;">
+                        <button class="btn-back" id="btn-beginner-back-menu" style="margin-bottom: 16px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                            Kembali
+                        </button>
+                        <div class="dashboard-grid">
+                            <!-- Definisi -->
+                            <div class="card glass" style="grid-column: span 2;">
+                                <h3 style="margin-bottom: 12px; font-size: 1.2rem;">📖 Definisi Notula Rapat</h3>
+                                <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.7; margin-bottom: 0;">
+                                    Notula adalah catatan singkat mengenai jalannya rapat, termasuk hal-hal yang dibicarakan dan diputuskan. Notula berfungsi sebagai bukti bahwa rapat telah diadakan sekaligus tolok ukur keberhasilan rapat tersebut.
+                                </p>
+                            </div>
+
+                            <!-- Fungsi -->
+                            <div class="card glass" style="grid-column: span 2;">
+                                <h3 style="margin-bottom: 12px; font-size: 1.2rem;">🎯 Fungsi Notula Rapat</h3>
+                                <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.7; margin-bottom: 12px;">
+                                    Notula memiliki makna penting karena berisi keputusan yang menjadi pegangan bersama dalam pelaksanaan tindak lanjut rapat. Fungsi notula antara lain:
+                                </p>
+                                <ul style="margin-left: 20px; color: var(--text-secondary); font-size: 0.95rem; line-height: 2;">
+                                    <li><strong style="color: var(--text-primary);">Dokumen resmi</strong> pembahasan dan keputusan rapat.</li>
+                                    <li><strong style="color: var(--text-primary);">Bukti</strong> bahwa rapat telah dilaksanakan.</li>
+                                    <li><strong style="color: var(--text-primary);">Pegangan bersama</strong> untuk pelaksanaan keputusan.</li>
+                                    <li><strong style="color: var(--text-primary);">Bahan pertimbangan</strong> untuk rapat selanjutnya.</li>
+                                    <li><strong style="color: var(--text-primary);">Alat evaluasi</strong> pencapaian tujuan rapat.</li>
+                                </ul>
+                            </div>
+
+                            <!-- Tips -->
+                            <div class="card glass" style="grid-column: span 2;">
+                                <h3 style="margin-bottom: 16px; font-size: 1.2rem;">💡 Tips Menjadi Notulis yang Baik</h3>
+
+                                <h4 style="margin: 12px 0 8px; color: var(--primary); font-size: 1rem;">Sebelum rapat</h4>
+                                <ol style="margin-left: 20px; color: var(--text-secondary); font-size: 0.95rem; line-height: 2;">
+                                    <li>Pahami dulu latar belakang dan tujuan materi yang akan dibahas.</li>
+                                    <li>Kenali alur atau susunan acara rapat agar tidak kaget dengan jalannya pembahasan.</li>
+                                </ol>
+
+                                <h4 style="margin: 12px 0 8px; color: var(--primary); font-size: 1rem;">Saat rapat</h4>
+                                <ol style="margin-left: 20px; color: var(--text-secondary); font-size: 0.95rem; line-height: 2;">
+                                    <li>Catat nama pembicara di tiap poin penting (contoh: <em>"Sdr. Setiadi mengusulkan…"</em>).</li>
+                                    <li>Dengarkan sambil mencatat inti pembicaraan, bukan kata demi kata.</li>
+                                    <li>Fokus pada hal-hal penting dan keputusan, lewati bagian yang kurang penting.</li>
+                                    <li>Jaga konsentrasi penuh agar tidak ada informasi penting yang terlewat.</li>
+                                    <li>Pahami istilah atau bahasa teknis yang dibahas dalam rapat, misalnya:
+                                        <ul style="margin-left: 20px;">
+                                            <li><strong style="color: var(--text-primary);">Kuorum:</strong> Jumlah minimal peserta agar rapat sah.</li>
+                                            <li><strong style="color: var(--text-primary);">Voting:</strong> Pengambilan keputusan lewat suara terbanyak.</li>
+                                            <li><strong style="color: var(--text-primary);">Skorsing:</strong> Penundaan sementara jalannya rapat.</li>
+                                        </ul>
+                                    </li>
+                                    <li>Tetap objektif dan netral, jangan memihak salah satu pendapat.</li>
+                                    <li>Tulis cepat dan sistematis agar tidak tertinggal jalannya rapat.</li>
+                                </ol>
+
+                                <h4 style="margin: 12px 0 8px; color: var(--primary); font-size: 1rem;">Setelah rapat</h4>
+                                <ol style="margin-left: 20px; color: var(--text-secondary); font-size: 0.95rem; line-height: 2;">
+                                    <li>Rapikan catatan menjadi notula yang jelas dan mudah dipahami.</li>
+                                    <li>Pastikan keputusan dan kesimpulan tertulis tegas, tanpa makna ganda.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sub halaman: Contoh Notula -->
+                    <div id="beginner-contoh" style="display: none;">
+                        <button class="btn-back" id="btn-beginner-back-menu-2" style="margin-bottom: 16px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                            Kembali
+                        </button>
+
+                        <div class="panduan-grid">
+                            <!-- Terisi (PDF) -->
+                            <div class="card glass">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+                                    <h3 style="font-size: 1.2rem;">📝 Contoh Notula Rapat Terisi</h3>
+                                    <a class="btn-primary" href="assets/contoh-notula-terisi.pdf" target="_blank" rel="noopener" style="padding: 10px 16px; text-decoration: none;">
+                                        Buka PDF
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                    </a>
+                                </div>
+                                <iframe src="assets/contoh-notula-terisi.pdf" style="width: 100%; height: 70vh; min-height: 480px; border: none; border-radius: 12px; background: #ffffff;" title="Contoh Notula Rapat Terisi"></iframe>
+                            </div>
+
+                            <!-- Kosong (Gambar) -->
+                            <div class="card glass">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+                                    <h3 style="font-size: 1.2rem;">🖨️ Contoh Notula Rapat Kosong</h3>
+                                    <a class="btn-primary" href="assets/contoh-notula-kosong.png" target="_blank" rel="noopener" style="padding: 10px 16px; text-decoration: none;">
+                                        Buka Gambar
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                    </a>
+                                </div>
+                                <img src="assets/contoh-notula-kosong.png" alt="Contoh Notula Rapat Kosong" style="width: 100%; height: 70vh; min-height: 480px; object-fit: contain; background: #ffffff; border-radius: 12px;">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. PRACTICE VIEW -->
+                <section id="view-practice" class="app-view">
+                    <div class="view-header">
+                        <h2>Practice Level</h2>
+                        <p>Berlatih membuat notula dari simulasi rapat secara bertahap. Selesaikan tiap latihan dengan nilai minimal 75 untuk membuka latihan berikutnya.</p>
+                    </div>
+                    <div id="level-practice-container" style="max-width: 900px;"></div>
+                </section>
+
+                <!-- 4. EXPERT VIEW -->
+                <section id="view-expert" class="app-view">
+                    <div class="view-header">
+                        <h2>Expert Level</h2>
+                        <p>Ujian akhir pembuatan notula rapat! Jawab 10 soal dalam mode <strong>Point Rush</strong> dengan batas waktu 15 detik per soal.</p>
+                    </div>
+                    <div id="level-expert-container" style="max-width: 720px;"></div>
+                </section>
+
+                <!-- 4b. EXPERT QUIZ VIEW (Point Rush) -->
+                <section id="view-expert-quiz" class="app-view">
+                    <div class="quiz-container card glass" id="expert-quiz-card">
+                        <!-- Quiz Header -->
+                        <div class="quiz-header">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <button class="btn-exit-quiz" id="btn-exit-expert-quiz">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                                    Keluar Kuis
+                                </button>
+                                <!-- Countdown ring di sekitar nomor soal -->
+                                <div class="expert-timer" id="expert-timer" title="Sisa waktu">
+                                    <svg viewBox="0 0 60 60" class="expert-timer-svg">
+                                        <circle class="expert-timer-bg" cx="30" cy="30" r="26"></circle>
+                                        <circle class="expert-timer-fg" id="expert-timer-fg" cx="30" cy="30" r="26"></circle>
+                                    </svg>
+                                    <div class="expert-timer-inner">
+                                        <span class="expert-timer-qnum" id="expert-timer-qnum">1</span>
+                                        <span class="expert-timer-secs" id="expert-timer-secs">15</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="quiz-progress-bar">
+                                <div class="quiz-progress-fill" id="expert-progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div class="quiz-progress-text" id="expert-progress-text">Soal 1 dari 10</div>
+                        </div>
+
+                        <!-- Quiz Active Body -->
+                        <div class="quiz-body" id="expert-quiz-active">
+                            <div class="question-container">
+                                <h3 id="expert-question-text">Loading pertanyaan...</h3>
+                            </div>
+                            <div class="options-container" id="expert-options-container">
+                                <!-- Options generated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. LATIHAN VIEW (Video Simulasi + Form Lembar Jawab Notula Rapat) -->
+                <section id="view-latihan" class="app-view">
+                    <div class="view-header">
+                        <h2 id="latihan-title">Latihan — Simulasi Rapat</h2>
+                        <p id="latihan-desc">Tonton video simulasi rapat, lalu isi Form Lembar Jawab Notula Rapat berdasarkan isi rapat tersebut.</p>
+                    </div>
+                    <button class="btn-back" id="btn-latihan-back" style="margin-bottom: 16px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                        Kembali ke Practice
+                    </button>
+
+                    <div class="panduan-grid">
+                        <!-- Kiri: Narasi + Video -->
+                        <div class="card glass">
+                            <h3 style="margin-bottom: 12px; font-size: 1.1rem;">📖 Narasi Soal</h3>
+                            <div class="l1-narasi" id="latihan-narasi"></div>
+                            <button class="btn-primary" id="btn-latihan-reveal-video" style="justify-content: center; margin-top: 14px; width: 100%;">
+                                Saya Sudah Membaca — Tonton Video
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            </button>
+                            <div id="latihan-video-wrap" style="display: none; margin-top: 14px;">
+                                <div style="position: relative; width: 100%; padding-top: 56.25%; border-radius: var(--radius-md); overflow: hidden; background: #000;">
+                                    <iframe id="latihan-video-iframe" data-src="" title="Video Simulasi Rapat" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Kanan: Form (diisi oleh JS) -->
+                        <div class="card glass">
+                            <h3 style="margin-bottom: 16px; font-size: 1.1rem;">📋 Form Lembar Jawab Notula Rapat</h3>
+                            <form id="form-latihan" style="display: flex; flex-direction: column; gap: 16px;"></form>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. HASIL LATIHAN VIEW -->
+                <section id="view-hasil-latihan" class="app-view">
+                    <div class="card glass" style="max-width: 560px; margin: 40px auto; text-align: center; padding: 48px 32px;">
+                        <div style="font-size: 3rem; margin-bottom: 8px;">🏆</div>
+                        <h2 style="margin-bottom: 8px;">Hasil Latihan</h2>
+                        <p style="color: var(--text-secondary); margin-bottom: 28px;">Berikut skor dan status pengerjaanmu.</p>
+                        <div class="score-circle" id="latihan-score">100</div>
+                        <p style="color: var(--success); font-weight: 700; margin: 20px 0 28px; font-size: 1.05rem;" id="latihan-feedback">🎉 Kamu berhasil melewati latihan ini!</p>
+                        <button class="btn-primary" id="btn-latihan-next" style="justify-content: center; width: 100%;">
+                            Lanjut ke Latihan Berikutnya
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Quest Preview Overlay (shared) -->
+                <div class="quest-overlay" id="quest-preview-overlay">
+                    <div class="quest-overlay-content glass">
+                        <button class="close-overlay-btn" id="close-quest-overlay">&times;</button>
+                        <span class="quest-badge" id="quest-difficulty">Mudah</span>
+                        <h3 id="quest-title">Nama Misi</h3>
+                        <p id="quest-desc">Deskripsi misi pembelajaran</p>
+                        <div class="quest-rewards">
+                            <div class="reward-pill xp-reward">
+                                <span>+<span id="quest-reward-xp">100</span> XP</span>
+                            </div>
+                            <div class="reward-pill coin-reward">
+                                <span>Jumlah Soal: <span id="quest-question-count">3</span></span>
+                            </div>
+                        </div>
+                        <button class="btn-primary start-quest-btn" id="btn-start-quest">Mulai Tes Sekarang</button>
+                    </div>
+                </div>
+
+                <!-- ATP Info Modal -->
+                <div class="quest-overlay" id="atp-overlay">
+                    <div class="quest-overlay-content glass" style="max-width: 640px; text-align: left;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px;">
+                            <h3 id="atp-modal-title" style="font-size: 1.3rem; margin: 0;"></h3>
+                            <button class="btn-exit-quiz" id="btn-atp-close" aria-label="Tutup">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+                        <div id="atp-modal-body"></div>
+                    </div>
+                </div>
+
+                <!-- Beginner Welcome Popup -->
+                <div class="quest-overlay" id="beginner-welcome-overlay">
+                    <div class="quest-overlay-content glass" style="max-width: 560px; text-align: center;">
+                        <span class="wave-hand" style="font-size: 3rem;">👋</span>
+                        <h3 style="margin: 12px 0; font-size: 1.4rem;">Halo, Sobat Notula!</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.7;">
+                            Sampai juga di Beginner Level! Di sini kamu akan pelajari definisi, fungsi, tips, dan contoh notula rapat. Pahami materi dan contohnya baik-baik, ya supaya kamu makin siap menghadapi tantangan seru di Practice Level!
+                        </p>
+                        <button class="btn-primary start-quest-btn" id="btn-beginner-welcome-close" style="justify-content: center; width: 100%; margin-top: 16px;">
+                            Mulai Belajar 📖
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Practice Welcome Popup -->
+                <div class="quest-overlay" id="practice-welcome-overlay">
+                    <div class="quest-overlay-content glass" style="max-width: 560px; text-align: center;">
+                        <span class="wave-hand" style="font-size: 3rem;">👋</span>
+                        <h3 style="margin: 12px 0; font-size: 1.4rem;">Halo, Sobat Notula!</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.7;">
+                            Saatnya latihan langsung! Di Practice Level, kamu akan membuat notula dari simulasi rapat satu per satu. Selesaikan setiap latihan dengan nilai minimal 75 supaya bisa membuka latihan berikutnya. Semangat, kamu pasti bisa!
+                        </p>
+                        <button class="btn-primary start-quest-btn" id="btn-practice-welcome-close" style="justify-content: center; width: 100%; margin-top: 16px;">
+                            Mulai!
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Expert Welcome Popup -->
+                <div class="quest-overlay" id="expert-welcome-overlay">
+                    <div class="quest-overlay-content glass" style="max-width: 560px; text-align: center;">
+                        <span class="wave-hand" style="font-size: 3rem;">👋</span>
+                        <h3 style="margin: 12px 0; font-size: 1.4rem;">Halo, Sobat Notula!</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.7;">
+                            Kamu sudah sampai di Expert Level! Saatnya uji kemampuanmu lewat kuis dan simulasi ujian akhir dengan durasi rapat yang lebih panjang. Tunjukkan seberapa jago kamu membuat notula rapat!
+                        </p>
+                        <button class="btn-primary start-quest-btn" id="btn-expert-welcome-start" style="justify-content: center; width: 100%; margin-top: 16px;">
+                            MULAI
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Expert Transition Popup (setelah kuis tuntas) -->
+                <div class="quest-overlay" id="expert-transition-overlay">
+                    <div class="quest-overlay-content glass" style="max-width: 560px; text-align: center;">
+                        <span class="pop-emoji" style="font-size: 3rem;">🎉</span>
+                        <h3 style="margin: 12px 0; font-size: 1.4rem;">Kerja bagus, Sobat Notula!</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.7;">
+                            Kuis tuntas! Lanjut ke tantangan notula!<br>
+                            Satu langkah lagi menuju garis akhir Expert Level.
+                        </p>
+                        <button class="btn-primary start-quest-btn" id="btn-expert-transition-start" style="justify-content: center; width: 100%; margin-top: 16px;">
+                            MULAI
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. INTERACTIVE QUIZ VIEW -->
+                <section id="view-quiz" class="app-view">
+                    <div class="quiz-container card glass">
+                        <!-- Quiz Header -->
+                        <div class="quiz-header">
+                            <button class="btn-exit-quiz" id="btn-exit-quiz">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                                Keluar Tes
+                            </button>
+                            <div class="quiz-progress-bar">
+                                <div class="quiz-progress-fill" id="quiz-progress-fill" style="width: 0%"></div>
+                            </div>
+                            <div class="quiz-progress-text" id="quiz-progress-text">Pertanyaan 1 dari 5</div>
+                        </div>
+
+                        <!-- Quiz Active Body -->
+                        <div class="quiz-body" id="quiz-active-body">
+                            <div class="question-container">
+                                <h3 id="quiz-question-text">Loading pertanyaan...</h3>
+                            </div>
+                            <div class="options-container" id="quiz-options-container">
+                                <!-- Options generated dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Feedback Panel -->
+                        <div class="quiz-feedback-panel" id="quiz-feedback-panel">
+                            <div class="feedback-message" id="feedback-message">
+                                <div class="feedback-icon" id="feedback-icon"></div>
+                                <div class="feedback-detail">
+                                    <h4 id="feedback-title">Benar!</h4>
+                                    <p id="feedback-desc">Penjelasan jawaban...</p>
+                                </div>
+                            </div>
+                            <button class="btn-primary" id="btn-next-question">Lanjutkan</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. PROGRES VIEW -->
+                <section id="view-progres" class="app-view">
+                    <div class="view-header">
+                        <h2>Progres Belajar</h2>
+                        <p>Laporan capaian, tahap pembelajaran, dan badge levelmu di SIMORA.</p>
+                    </div>
+                    <div id="progres-container"></div>
+                </section>
+
+                <!-- 5. REFERENSI VIEW -->
+                <section id="view-referensi" class="app-view">
+                    <div class="view-header">
+                        <h2>Sumber Referensi Pembelajaran</h2>
+                        <p>Daftar pustaka dan sumber daya pembelajaran materi pembuatan notula rapat.</p>
+                    </div>
+                    
+                    <div class="shop-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+                        <div class="card glass shop-card">
+                            <div class="tes-level-preview">🎬</div>
+                            <div class="shop-item-details">
+                                <h3 class="shop-item-name">Banteng OTKP (2022, 5 September)</h3>
+                                <p class="shop-item-desc" style="margin-top: 4px;"><em>Rapat evaluasi kinerja pegawai kelompok 1</em> [Video]. YouTube.</p>
+                            </div>
+                            <a href="https://youtu.be/nhmcJFQBtu8" target="_blank" rel="noopener" class="btn-tes-action" style="text-decoration: none; margin-top: auto;">Buka Video ↗</a>
+                        </div>
+                        <div class="card glass shop-card">
+                            <div class="tes-level-preview">🎬</div>
+                            <div class="shop-item-details">
+                                <h3 class="shop-item-name">Marwan World (2024, 25 Oktober)</h3>
+                                <p class="shop-item-desc" style="margin-top: 4px;"><em>Video praktik rapat oleh Manajemen Perkantoran SMKN 2 Pariaman (SMKNPRM) – UNP Lomba Video KAP</em> [Video]. YouTube.</p>
+                            </div>
+                            <a href="https://youtu.be/Gq6ZXea1p0E" target="_blank" rel="noopener" class="btn-tes-action" style="text-decoration: none; margin-top: auto;">Buka Video ↗</a>
+                        </div>
+                        <div class="card glass shop-card">
+                            <div class="tes-level-preview">🎬</div>
+                            <div class="shop-item-details">
+                                <h3 class="shop-item-name">Office Administration Squad (2024, 24 Oktober)</h3>
+                                <p class="shop-item-desc" style="margin-top: 4px;"><em>Simulasi rapat Office Administration Squad SMKN 1 Painan (Lomba Video KAP FEB UNP)</em> [Video]. YouTube.</p>
+                            </div>
+                            <a href="https://youtu.be/8a8DgYHNC9Q" target="_blank" rel="noopener" class="btn-tes-action" style="text-decoration: none; margin-top: auto;">Buka Video ↗</a>
+                        </div>
+                        <div class="card glass shop-card">
+                            <div class="tes-level-preview">📖</div>
+                            <div class="shop-item-details">
+                                <h3 class="shop-item-name">Priansa, D. J. (2017)</h3>
+                                <p class="shop-item-desc" style="margin-top: 4px;"><em>Manajemen sekretaris kantor terampil dan profesional.</em> CV Pustaka Setia.</p>
+                            </div>
+                        </div>
+                        <div class="card glass shop-card">
+                            <div class="tes-level-preview">📖</div>
+                            <div class="shop-item-details">
+                                <h3 class="shop-item-name">Sedarmayanti (2017)</h3>
+                                <p class="shop-item-desc" style="margin-top: 4px;"><em>Manajemen perkantoran modern.</em> CV Mandar Maju.</p>
+                            </div>
+                        </div>
+                        <div class="card glass shop-card">
+                            <div class="tes-level-preview">🎬</div>
+                            <div class="shop-item-details">
+                                <h3 class="shop-item-name">Vinanda Dwi Agustin (2022, 29 Oktober)</h3>
+                                <p class="shop-item-desc" style="margin-top: 4px;"><em>Simulasi rapat penurunan pemasaran produk XII OTKP 1 SMK N 1 Boyolali</em> [Video]. YouTube.</p>
+                            </div>
+                            <a href="https://youtu.be/DGW5Vkq4cWI" target="_blank" rel="noopener" class="btn-tes-action" style="text-decoration: none; margin-top: auto;">Buka Video ↗</a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. PROFIL PENGEMBANG VIEW -->
+                <section id="view-profil" class="app-view">
+                    <div class="view-header">
+                        <h2>Profil Pengembang</h2>
+                        <p>Data dosen pembimbing dan pengembang aplikasi SIMORA.</p>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        <!-- Kiri: Dosen Pembimbing -->
+                        <div class="card glass" style="text-align: center; padding: 32px 28px;">
+                            <div style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; margin: 0 auto 16px; border: 3px solid var(--border-color-glow); box-shadow: 0 6px 20px var(--primary-glow);">
+                                <img src="documents/Dosbim.jpg" alt="Foto Dr. Sutirman, M.Pd" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <span style="display: inline-block; padding: 6px 14px; border-radius: 50px; background: rgba(59, 130, 246, 0.12); color: #1d4ed8; font-weight: 700; font-size: 0.75rem; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px;">🎓 Dosen Pembimbing</span>
+                            <h3 style="font-size: 1.4rem; margin-bottom: 4px;">Dr. Sutirman, M.Pd</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">Dekan Fakultas Ekonomi &amp; Bisnis</p>
+                            <div style="text-align: left; background: rgba(0,0,0,0.04); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px 18px; display: flex; flex-direction: column; gap: 10px;">
+                                <div style="display: flex; justify-content: space-between; gap: 16px; align-items: baseline;">
+                                    <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">NIP</span>
+                                    <span style="font-weight: 700; font-size: 0.9rem; text-align: right;">19720103 20051 1 001</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; gap: 16px; align-items: baseline;">
+                                    <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Jabatan</span>
+                                    <span style="font-weight: 600; font-size: 0.9rem; text-align: right;">Dekan Fakultas Ekonomi &amp; Bisnis</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Kanan: Pengembang -->
+                        <div class="card glass" style="text-align: center; padding: 32px 28px;">
+                            <div style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; margin: 0 auto 16px; border: 3px solid var(--border-color-glow); box-shadow: 0 6px 20px var(--primary-glow);">
+                                <img src="documents/Pengembang.jpg" alt="Foto Lestiani Cahyaningrum" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <span style="display: inline-block; padding: 6px 14px; border-radius: 50px; background: rgba(16, 185, 129, 0.12); color: var(--success); font-weight: 700; font-size: 0.75rem; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px;">🧑‍💻 Pengembang</span>
+                            <h3 style="font-size: 1.4rem; margin-bottom: 4px;">Lestiani Cahyaningrum</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">Pendidikan Administrasi Perkantoran 2022</p>
+                            <div style="text-align: left; background: rgba(0,0,0,0.04); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px 18px; display: flex; flex-direction: column; gap: 10px;">
+                                <div style="display: flex; justify-content: space-between; gap: 16px; align-items: baseline;">
+                                    <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">NIM</span>
+                                    <span style="font-weight: 700; font-size: 0.9rem; text-align: right;">22802241043</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; gap: 16px; align-items: baseline;">
+                                    <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Jabatan</span>
+                                    <span style="font-weight: 600; font-size: 0.9rem; text-align: right;">Mahasiswa Pendidikan Administrasi Perkantoran Angkatan 2022</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+
+        <!-- Bottom Navigation (Mobile) -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-target="dashboard">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </span>
+            </button>
+            <button class="nav-item" data-target="atp">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20M4 19.5V3.5A2.5 2.5 0 0 1 6.5 1H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5z"/></svg>
+                </span>
+            </button>
+            <button class="nav-item" data-target="beginner">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+                </span>
+            </button>
+            <button class="nav-item" data-target="practice">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                </span>
+            </button>
+            <button class="nav-item" data-target="expert">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                </span>
+            </button>
+            <button class="nav-item" data-target="progres">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                </span>
+            </button>
+            <button class="nav-item" data-target="referensi">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                </span>
+            </button>
+            <button class="nav-item" data-target="profil">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Notification Toast System -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Welcome Popup sebelum masuk Dashboard (onboarding & halaman panduan) -->
+    <div class="quest-overlay" id="onboarding-welcome-overlay" style="z-index: 10000;">
+        <div class="quest-overlay-content" style="max-width: 560px; text-align: center;">
+            <h3 style="margin: 12px 0; font-size: 1.5rem;">Halo, Sobat Notula! <span class="wave-hand">👋</span></h3>
+            <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.7;">
+                Selamat bergabung dalam media pembelajaran interaktif SIMORA (Simulasi Notula Rapat).
+                <br><br>
+                Apakah kamu siap belajar hari ini?
+                <br><br>
+                Ayo taklukkan tantangan belajar hari ini dan asah kemampuanmu membuat notula rapat!
+            </p>
+            <button class="btn-primary start-quest-btn" id="btn-onboarding-dashboard-start" style="justify-content: center; width: 100%; margin-top: 16px;">
+                MULAI
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="js/main.js"></script>
+
+    <!-- Sound toggle (pojok kanan atas, tampil setelah login) -->
+    <button class="audio-toggle ws-audio-toggle" id="ws-audio-toggle" aria-label="Aktifkan atau nonaktifkan suara" title="Suara: Nyala" style="position: fixed; top: 18px; right: 22px; z-index: 2500;">
+        <svg class="audio-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+        <svg class="audio-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+    </button>
+</body>
+</html>
