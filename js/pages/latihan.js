@@ -5,6 +5,7 @@
 
 import { navigateTo } from "../navigation.js";
 import { showToast } from "../ui.js";
+import { pushSiswaResult } from "../supabase.js";
 
 const LATIHAN_CONFIG = {
     "practice-l1": {
@@ -255,11 +256,30 @@ export function initLatihan(app) {
             return;
         }
 
+        // Bungkus isi notula jadi data terstruktur → disimpan ke riwayat (dilihat admin).
+        const notulaData = {
+            jenis: "notula",
+            agenda: checks["Agenda Rapat"] ? val("lat-agenda") : null,
+            tanggal: val("lat-tanggal"),
+            waktu: val("lat-waktu"),
+            tempat: val("lat-tempat"),
+            pemimpin: val("lat-pemimpin"),
+            notulis: val("lat-notulis"),
+            peserta,
+            susunanAcara: acara,
+            isiRapat: pembicara,
+            penutup: val("lat-penutup")
+        };
+
         // Tandai selesai
         lvl.status = "completed";
         lvl.score = 100;
         lvl.date = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric' });
         app.saveState();
+
+        // Kirim hasil ke Supabase (status stage + attempt + stats). Aman gagal (offline).
+        pushSiswaResult(app.state, { levelId: lvlId, score: 100, completed: true, answers: notulaData })
+            .catch(err => console.warn("Gagal sinkron latihan:", err));
 
         // Expert: tantangan akhir → langsung kembali ke menu Expert (tanpa halaman skor)
         if (lvlId === "expert") {

@@ -6,6 +6,7 @@ import { navigateTo } from "../navigation.js";
 import { showToast, closeQuestOverlay, levelUpSplash, showConfirm } from "../ui.js";
 import { fireConfetti } from "../confetti.js";
 import { playCorrect, playWrong, playSuccess } from "../sfx.js";
+import { pushSiswaResult } from "../supabase.js";
 
 export function startQuiz(app, levelId) {
     const lvl = app.state.tests[levelId];
@@ -66,6 +67,13 @@ function selectOption(app, selectedIndex, selectedBtn) {
 
     const currentQ = app.quizState.questions[app.quizState.currentIndex];
     const isCorrect = selectedIndex === currentQ.answer;
+
+    // Catat jawaban per soal untuk riwayat (dilihat admin).
+    app.quizState.answers[app.quizState.currentIndex] = {
+        soal: currentQ.q,
+        opsi: currentQ.options[selectedIndex],
+        benar: isCorrect
+    };
 
     const panel = document.getElementById("quiz-feedback-panel");
     const fbIcon = document.getElementById("feedback-icon");
@@ -166,6 +174,13 @@ function finishQuiz(app) {
 
     app.saveState();
 
+    // Kirim hasil ke Supabase (status stage + attempt + xp). Aman gagal (offline).
+    pushSiswaResult(app.state, {
+        levelId: lvlId,
+        score: finalScorePct,
+        completed: isPassed,
+        answers: app.quizState.answers && app.quizState.answers.length ? app.quizState.answers : null
+    }).catch(err => console.warn("Gagal sinkron hasil tes:", err));
     const isLatihan = lvlId.startsWith("practice-l");
     navigateTo(app, isLatihan ? "practice" : lvlId, { skipGreeting: true });
 }

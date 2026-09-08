@@ -11,6 +11,7 @@ import { navigateTo } from "../navigation.js";
 import { playCorrect, playWrong } from "../sfx.js";
 import { fireConfetti } from "../confetti.js";
 import { renderLatihan } from "./latihan.js";
+import { logAttempt } from "../supabase.js";
 
 const TIME_PER_QUESTION = 15;   // detik per soal
 const BONUS_WINDOW = 5;         // benar < 5 detik → bonus
@@ -90,7 +91,8 @@ export function startExpertQuiz(app) {
         timeLeft: TIME_PER_QUESTION,
         finished: false,
         timer: null,
-        advanceTimer: null
+        advanceTimer: null,
+        answers: []
     };
 
     resetExpertQuizUi();
@@ -199,6 +201,13 @@ function selectExpertAnswer(app, selectedIndex, selectedBtn) {
     const options = document.querySelectorAll("#expert-options-container .option-btn");
     options.forEach(btn => btn.disabled = true);
 
+    // Catat jawaban per soal untuk riwayat (dilihat admin).
+    state.answers.push({
+        soal: q.q,
+        opsi: q.options[selectedIndex],
+        benar: isCorrect
+    });
+
     const card = document.getElementById("expert-quiz-card");
     const container = document.getElementById("expert-options-container");
 
@@ -234,6 +243,13 @@ function handleExpertTimeout(app) {
     options.forEach(btn => btn.disabled = true);
     options[q.answer].classList.add("correct-reveal");
 
+    // Jawaban tidak terjawab (habis waktu) ikut tercatat.
+    state.answers.push({
+        soal: q.q,
+        opsi: null,
+        benar: false
+    });
+
     const card = document.getElementById("expert-quiz-card");
     const container = document.getElementById("expert-options-container");
     container.classList.add("feedback-wrong");
@@ -257,6 +273,17 @@ function advanceExpert(app) {
 function showExpertTransition(app) {
     const state = app.expertState;
     state.finished = true;
+
+    // Kuis tuntas → simpan riwayat jawaban kuis (tanpa mengubah status tahap).
+    const pct = state.questions.length
+        ? Math.min(100, Math.round(state.totalPoints / (state.questions.length * BASE_POINTS) * 100))
+        : 0;
+    logAttempt("expert", {
+        jenis: "kuiz",
+        perSoal: state.answers,
+        bonusPoin: state.bonusPoints,
+        totalPoin: state.totalPoints
+    }, pct);
 
     // Kuis tuntas → popup transisi menuju tantangan notula (tanpa tampilkan skor)
     document.getElementById("expert-transition-overlay").classList.add("show");

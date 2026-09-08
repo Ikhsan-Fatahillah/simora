@@ -2,12 +2,13 @@
  * SIMORA - Entry point: bootstrap seluruh halaman & event wiring
  */
 
-import { loadState, saveState } from "./store.js";
+import { loadState, saveState, stateKeyFor } from "./store.js";
 import { showToast, closeQuestOverlay, showConfirm } from "./ui.js";
 import { playClick } from "./sfx.js";
 import { unlockBgm, startBgm, stopBgm } from "./bgm.js";
 import { navigateTo } from "./navigation.js";
-import { initAuth, validSession } from "./pages/auth.js";
+import { initAuth } from "./pages/auth.js";
+import { getSession, fetchCurrentProfile, signOutCurrentUser, pullSiswaState, preloadSoal, pushSiswaResult } from "./supabase.js";
 import { initOnboarding } from "./pages/onboarding.js";
 import { renderPractice } from "./pages/tes.js";
 import { startQuiz, nextQuestion, exitQuiz } from "./pages/quiz.js";
@@ -17,20 +18,59 @@ import { renderProgres } from "./pages/progres.js";
 import { initAtp } from "./pages/atp.js";
 import { initPanduan } from "./pages/panduan.js";
 
-function init() {
-    // Guard: sesi lama yang tidak valid (belum login / akun tidak dikenal)
-    // tidak boleh membuka dashboard — paksa kembali ke layar landing.
-    const stored = loadState();
-    if (!validSession(stored)) {
-        stored.auth.isLoggedIn = false;
-        stored.auth.hasCompletedOnboarding = false;
+async function init() {
+    // Resolve sesi dari Supabase Auth (email virtual).
+    // Tanpa sesi valid di Supabase → paksa kembali ke layar landing.
+    let sessionUser = null;
+    try {
+        const { data } = await getSession();
+        sessionUser = data?.session?.user ?? null;
+    } catch (err) {
+        console.warn("Gagal cek sesi Supabase:", err);
+    }
+
+    // Profil (username/role) menentukan kunci penyimpanan lokal per akun.
+    // Progres siswa tidak pernah bocor antar-akun di perangkat yang sama.
+    let authProfile = null;
+    if (sessionUser) {
+        try {
+            authProfile = await fetchCurrentProfile();
+        } catch (err) {
+            console.warn("Gagal ambil profil:", err);
+        }
+    }
+
+    const activeKey = authProfile?.username ? stateKeyFor(authProfile.username) : undefined;
+    const stored = loadState(activeKey);
+
+    stored.auth = stored.auth || {};
+    stored.auth.isLoggedIn = !!authProfile;
+    if (authProfile) {
+        stored.auth.username = authProfile.username;
+        stored.auth.role = authProfile.role;
+        stored.auth.nama = authProfile.nama;
+    } else {
         stored.auth.username = null;
-        saveState(stored);
+        stored.auth.role = null;
+        stored.auth.nama = null;
+    }
+    saveState(stored, activeKey);
+
+    // Sinkron data siswa dari Supabase (progres, stats, soal) saat boot.
+    if (stored.auth.isLoggedIn && stored.auth.role === "siswa") {
+        try {
+            await pullSiswaState(stored);
+            await preloadSoal(stored);
+            saveState(stored, activeKey);
+        } catch (err) {
+            console.warn("Gagal sinkron data siswa dari Supabase:", err);
+        }
     }
 
     // Shared app context
     const app = {
         state: stored,
+        _stateKey: activeKey,
         currentView: "atp",
         quizState: {
             activeLevelId: null,
@@ -40,7 +80,7 @@ function init() {
             answers: []
         },
         saveState() {
-            saveState(this.state);
+            saveState(this.state, this._stateKey);
         }
     };
     window.app = app;
@@ -48,9 +88,14 @@ function init() {
     // Initial screen check
     document.querySelectorAll(".full-screen-view").forEach(s => s.classList.remove("active"));
     document.getElementById("app-workspace").style.display = "none";
+    document.getElementById("admin-workspace").style.display = "none";
 
     if (!app.state.auth.isLoggedIn) {
         document.getElementById("screen-landing").classList.add("active");
+    } else if (app.state.auth.role === "admin") {
+        // Sesi admin tersimpan: langsung buka dashboard admin (tanpa onboarding).
+        document.getElementById("admin-workspace").style.display = "grid";
+        navigateTo(app, "admin-dashboard");
     } else if (!app.state.auth.hasCompletedOnboarding) {
         document.getElementById("screen-onboarding").classList.add("active");
     } else {
@@ -142,19 +187,30 @@ function init() {
         });
         if (!ok) return;
 
+        try {
+            await signOutCurrentUser();
+        } catch (err) {
+            console.warn("Gagal sign out Supabase:", err);
+        }
+
         app.state.auth.isLoggedIn = false;
         app.state.auth.hasCompletedOnboarding = false;
         app.state.auth.username = null; // end session: bersihkan identitas akun
+        app.state.auth.role = null;
         app.saveState();
 
         document.querySelectorAll(".full-screen-view").forEach(s => s.classList.remove("active"));
         document.getElementById("app-workspace").style.display = "none";
+        document.getElementById("admin-workspace").style.display = "none";
         document.getElementById("screen-landing").classList.add("active");
         syncBgm();
         showToast("Berhasil keluar akun!", "success");
     };
 
     document.getElementById("logout-btn").addEventListener("click", handleLogout);
+    document.getElementById("admin-logout-btn").addEventListener("click", handleLogout);
+    const adminBottomLogout = document.getElementById("admin-bottom-logout");
+    if (adminBottomLogout) adminBottomLogout.addEventListener("click", handleLogout);
 
     // Quest overlay controls (Tes)
     document.getElementById("close-quest-overlay").addEventListener("click", () => {
@@ -192,6 +248,8 @@ function init() {
         app.state.tests.practice.status = "unlocked";
         app.state.tests["practice-l1"].status = "unlocked";
         app.saveState();
+        pushSiswaResult(app.state, { levelId: "beginner", score: 100, completed: true, answers: null })
+            .catch(err => console.warn("Gagal sinkron beginner:", err));
         navigateTo(app, "practice");
         showToast("Materi selesai! Practice Level terbuka!", "success");
     });
@@ -212,4 +270,4 @@ function init() {
     });
 }
 
-window.addEventListener("DOMContentLoaded", init);
+window.addEventListener("DOMContentLoaded", () => init());

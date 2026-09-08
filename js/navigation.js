@@ -6,6 +6,7 @@ import { renderPractice } from "./pages/tes.js";
 import { renderExpert } from "./pages/expert.js";
 import { renderProgres } from "./pages/progres.js";
 import { renderDashboard } from "./pages/dashboard.js";
+import { renderAdminDashboard, renderAdminRekap, renderAdminSiswa } from "./pages/admin.js";
 import { closeQuestOverlay, showConfirm } from "./ui.js";
 import { setBgmDuck } from "./bgm.js";
 
@@ -101,6 +102,12 @@ function doNavigate(app, viewId, opts = {}) {
         }
     } else if (viewId === "progres") {
         renderProgres(app);
+    } else if (viewId === "admin-dashboard") {
+        renderAdminDashboard(app);
+    } else if (viewId === "admin-rekap") {
+        renderAdminRekap(app);
+    } else if (viewId === "admin-siswa") {
+        renderAdminSiswa(app);
     }
 
     // Backsound tetap menyala; volume dikurangi saat video rapat sedang diputar

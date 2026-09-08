@@ -259,8 +259,15 @@ export const DEFAULT_STATE = {
     }
 };
 
-export function loadState() {
-    const stored = localStorage.getItem("simora_atp_state");
+const DEFAULT_STORAGE_KEY = "simora_atp_state";
+
+// Kunci penyimpanan per akun: progres satu siswa tidak bocor ke siswa lain.
+export function stateKeyFor(username) {
+    return username ? `simora_state_${username}` : DEFAULT_STORAGE_KEY;
+}
+
+export function loadState(key = DEFAULT_STORAGE_KEY) {
+    const stored = localStorage.getItem(key);
     const state = stored ? JSON.parse(stored) : JSON.parse(JSON.stringify(DEFAULT_STATE));
 
     // Backward compatibility safety check
@@ -311,6 +318,6 @@ export function loadState() {
     return state;
 }
 
-export function saveState(state) {
-    localStorage.setItem("simora_atp_state", JSON.stringify(state));
+export function saveState(state, key = DEFAULT_STORAGE_KEY) {
+    localStorage.setItem(key, JSON.stringify(state));
 }
