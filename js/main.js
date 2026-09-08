@@ -141,6 +141,8 @@ async function init() {
             stopBgm();
         }
     };
+    // Dipanggil auth.js setelah login sukses supaya ikon suara & backsound muncul seketika.
+    app.syncBgm = syncBgm;
 
     // Sidebar, bottom-nav & in-view links (event delegation utk elemen dinamis)
     document.addEventListener("click", (e) => {

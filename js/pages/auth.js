@@ -104,6 +104,9 @@ export function initAuth(app) {
         app.state.auth.hasCompletedOnboarding = profile.role === "admin";
         app.saveState();
 
+        // Tampilkan ikon suara & nyalakan backsound seketika (default: nyala).
+        if (app.syncBgm) app.syncBgm();
+
         // Siswa: tarik progres & soal dari Supabase ke state akun ini.
         if (profile.role === "siswa") {
             try {
