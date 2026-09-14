@@ -10,7 +10,7 @@
 import { navigateTo } from "../navigation.js";
 import { playCorrect, playWrong } from "../sfx.js";
 import { fireConfetti } from "../confetti.js";
-import { renderLatihan } from "./latihan.js";
+import { renderLatihan, tolakKerjaUlang } from "./latihan.js";
 import { logAttempt } from "../supabase.js";
 
 const TIME_PER_QUESTION = 15;   // detik per soal
@@ -44,7 +44,7 @@ export function renderExpert(app) {
         disabled = true;
     } else if (lvl.status === "completed") {
         cardClass += " completed";
-        actionText = "Ulangi Kuis";
+        actionText = "Lihat Hasil";
         statusLabel = `Selesai · ${lvl.score}%`;
         statusClass = "completed";
         emoji = "🏆";
@@ -76,6 +76,9 @@ export function renderExpert(app) {
 export function startExpertQuiz(app) {
     const lvl = app.state.tests.expert;
     if (!lvl || lvl.status === "locked") return;
+
+    // Sekali pakai: Expert yang sudah selesai tidak bisa dikerjakan ulang.
+    if (tolakKerjaUlang(app, "expert")) return;
 
     // Bersihkan timer/sisa kuis sebelumnya bila ada
     if (app.expertState?.timer) clearInterval(app.expertState.timer);
@@ -274,13 +277,17 @@ function showExpertTransition(app) {
     const state = app.expertState;
     state.finished = true;
 
-    // Kuis tuntas → simpan riwayat jawaban kuis (tanpa mengubah status tahap).
+    // Skor kuis = jawaban benar / jumlah soal. Soal yang tidak dijawab (waktu habis)
+    // otomatis terhitung salah — bonus kecepatan tidak ikut menutupi skor.
     const pct = state.questions.length
-        ? Math.min(100, Math.round(state.totalPoints / (state.questions.length * BASE_POINTS) * 100))
+        ? Math.round((state.correctCount / state.questions.length) * 100)
         : 0;
     logAttempt("expert", {
         jenis: "kuiz",
         perSoal: state.answers,
+        benar: state.correctCount,
+        totalSoal: state.questions.length,
+        tidakDijawab: state.answers.filter(a => !a.opsi).length,
         bonusPoin: state.bonusPoints,
         totalPoin: state.totalPoints
     }, pct);
@@ -303,7 +310,7 @@ export function initExpert(app) {
 
     // Kuis tuntas → lanjut ke tantangan notula (form, bukan skor)
     document.getElementById("btn-expert-transition-start").addEventListener("click", () => {
-        renderLatihan(app, "expert");
+        if (!renderLatihan(app, "expert")) return;
         navigateTo(app, "latihan");
     });
 }

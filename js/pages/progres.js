@@ -9,6 +9,7 @@ export function renderProgres(app) {
     const container = document.getElementById("progres-container");
     if (!container) return;
 
+    const namaSiswa = app.state.auth?.nama || app.state.auth?.username || "Siswa";
     const t = app.state.tests;
     const completedCount = LEVELS.filter(id => t[id]?.status === "completed").length;
     const pct = Math.round((completedCount / LEVELS.length) * 100);
@@ -22,7 +23,7 @@ export function renderProgres(app) {
         <div class="card glass" style="text-align: center; padding: 32px;">
             <div style="font-size: 2.5rem; margin-bottom: 8px;">📊</div>
             <h2 style="margin-bottom: 4px;">Laporan Capaian</h2>
-            <p style="color: var(--text-secondary); font-size: 0.95rem;">Ahmad Rizki · XI MPLB 1</p>
+            <p style="color: var(--text-secondary); font-size: 0.95rem;">${namaSiswa}</p>
             <div style="margin: 20px auto 8px; max-width: 420px;">
                 <div style="font-size: 2.4rem; font-weight: 800; font-family: var(--font-heading); color: var(--primary);">${pct}%</div>
                 <div style="font-size: 0.85rem; color: var(--text-secondary);">Persentase Selesai</div>
@@ -36,13 +37,13 @@ export function renderProgres(app) {
 
     // --- 2. TAHAP (3 card) ---
     const tahapCard = (emoji, title, done, note) => `
-        <div class="card glass" style="text-align: center; padding: 24px 16px; ${done ? 'border-color: var(--success);' : 'opacity: 0.85;'}">
+        <div class="card glass tahap-card" style="text-align: center; padding: 24px 16px;">
             <div style="font-size: 2rem; margin-bottom: 8px;">${emoji}</div>
             <h3 style="font-size: 1.1rem; margin-bottom: 10px;">${title}</h3>
             ${done
-                ? `<span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 50px; background: rgba(16, 185, 129, 0.12); color: var(--success); font-weight: 700; font-size: 0.85rem;">✓ Selesai</span>`
-                : `<span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 50px; background: rgba(100, 116, 139, 0.12); color: var(--text-muted); font-weight: 700; font-size: 0.85rem;">🔒 Terkunci</span>`}
-            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 12px; min-height: 36px;">${note}</p>
+                ? `<span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 50px; background: rgba(255, 255, 255, 0.9); color: #15803d; font-weight: 700; font-size: 0.85rem;">✓ Selesai</span>`
+                : `<span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 50px; background: rgba(255, 255, 255, 0.25); color: var(--tahap-title, var(--text-muted)); font-weight: 700; font-size: 0.85rem;">🔒 Terkunci</span>`}
+            <p style="font-size: 0.8rem; color: var(--tahap-desc, var(--text-secondary)); margin-top: 12px; min-height: 36px;">${note}</p>
         </div>
     `;
 

@@ -5,6 +5,7 @@
 export const DEFAULT_STATE = {
     auth: {
         isLoggedIn: false,
+        userId: null,
         hasCompletedOnboarding: false
     },
     user: {
@@ -261,9 +262,11 @@ export const DEFAULT_STATE = {
 
 const DEFAULT_STORAGE_KEY = "simora_atp_state";
 
-// Kunci penyimpanan per akun: progres satu siswa tidak bocor ke siswa lain.
-export function stateKeyFor(username) {
-    return username ? `simora_state_${username}` : DEFAULT_STORAGE_KEY;
+// Kunci penyimpanan per akun memakai id akun (uid Supabase) yang unik & permanen.
+// Username TIDAK dipakai karena bisa dipakai ulang untuk akun baru: akun baru
+// berisiko mewarisi progres akun lama yang sudah dihapus di perangkat yang sama.
+export function stateKeyFor(userId) {
+    return userId ? `simora_state_${userId}` : DEFAULT_STORAGE_KEY;
 }
 
 export function loadState(key = DEFAULT_STORAGE_KEY) {

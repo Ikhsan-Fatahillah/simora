@@ -91,13 +91,15 @@ export function initAuth(app) {
         }
 
         // Pindah ke state lokal milik akun ini (fresh bila pertama kali login).
-        // Progres antar-siswa tidak bocor di perangkat yang sama.
-        const nextKey = stateKeyFor(profile.username);
+        // Kunci memakai id akun (uid): akun baru selalu mulai dari nol, tidak
+        // mewarisi progres akun lama walau username-nya dipakai ulang.
+        const nextKey = stateKeyFor(profile.id);
         app.state = loadState(nextKey);
         app._stateKey = nextKey;
 
         // Mulai session aplikasi
         app.state.auth.isLoggedIn = true;
+        app.state.auth.userId = profile.id;
         app.state.auth.username = profile.username;
         app.state.auth.role = profile.role;
         app.state.auth.nama = profile.nama;
@@ -126,6 +128,7 @@ export function initAuth(app) {
             navigateTo(app, "admin-dashboard");
             playCorrect();
             showToast("Berhasil masuk sebagai Admin!", "success");
+            if (app.syncBgm) app.syncBgm(); // tampilkan ikon suara setelah masuk workspace
             return;
         }
 
@@ -133,5 +136,6 @@ export function initAuth(app) {
         document.getElementById("screen-onboarding").classList.add("active");
         playCorrect();
         showToast("Berhasil masuk akun!", "success");
+        if (app.syncBgm) app.syncBgm(); // ikon suara tetap tersembunyi selama onboarding
     });
 }

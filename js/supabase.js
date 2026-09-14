@@ -102,6 +102,12 @@ export async function pullSiswaState(stored) {
                 if (d) lv.date = d;
             }
         }
+
+        // Akun yang sudah punya progres di DB tidak perlu melewati onboarding lagi
+        // (state lokal per uid-nya baru, jadi flag-nya masih kosong).
+        if (stored.auth && Object.values(stored.tests || {}).some(lv => lv?.status === "completed")) {
+            stored.auth.hasCompletedOnboarding = true;
+        }
     } catch (err) {
         console.warn("Gagal tarik state dari Supabase:", err);
     }

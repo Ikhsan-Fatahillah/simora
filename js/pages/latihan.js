@@ -36,6 +36,308 @@ const NEXT_LEVEL = {
     "practice-l3": "expert"
 };
 
+/**
+ * Rubrik penilaian notula (total bobot 100 poin).
+ * Aturan cocok kata kunci:
+ * - groups  → SEMUA grup harus terpenuhi; tiap grup berisi alternatif (salah satu cukup).
+ * - exact   → field pakai selector (tanggal), nilainya harus sama persis.
+ * - rentang → field waktu (mulai & selesai), keduanya harus sama persis.
+ * - pemimpin + notulis → field Organisasi Rapat dinilai dari kedua nama.
+ * - bebas   → asal terisi, otomatis benar.
+ * Skor tiap bagian = bobot × (jumlah benar / jumlah yang dinilai), lalu dibulatkan.
+ */
+const RUBRIK_NOTULA = {
+    "practice-l1": {
+        kkm: 70,
+        // Kelengkapan identitas rapat (20 poin)
+        identitas: [
+            { label: "Agenda Rapat", groups: [["disiplin"], ["omset"]] },
+            { label: "Hari/Tanggal", exact: "2024-06-10" },
+            { label: "Waktu", rentang: ["09:00", "12:00"] },
+            { label: "Tempat", groups: [["ruang rapat"], ["pt permindo sikucha"]] },
+            { label: "Organisasi Rapat", bebas: true },
+            { label: "Peserta Rapat", groups: [["pemasaran"], ["kepegawaian", "hrd"], ["umum"], ["keuangan"]] }
+        ],
+        // Ketepatan susunan acara (10 poin)
+        acara: { label: "Susunan Acara", groups: [["pembukaan"], ["laporan", "diskusi"], ["penutup"]] },
+        // Ketepatan isi rapat (40 poin) — dinilai per pembicara
+        isi: {
+            label: "Isi Rapat",
+            pembicara: [
+                { nama: ["pemasaran"], groups: [["karyawan tidak disiplin"], ["target tidak tercapai", "omset tidak tercapai"], ["teguran belum efektif"]] },
+                { nama: ["kepegawaian", "hrd"], groups: [["lebih dari 5 kali absen tanpa alasan jelas"], ["sudah ada peringatan tertulis"], ["perlu tindakan lebih tegas"]] },
+                { nama: ["umum"], groups: [["absensi masih manual"], ["usul sistem absensi digital"]] },
+                { nama: ["keuangan"], groups: [["omset turun 15% dalam 3 bulan"], ["usul restrukturisasi sistem insentif"]] }
+            ]
+        },
+        // Ketepatan hasil rapat (30 poin)
+        penutup: { label: "Penutup/Hasil Rapat", groups: [["absensi digital", "teknologi"], ["peraturan ketat"], ["sanksi"]] }
+    },
+    "practice-l2": {
+        kkm: 75,
+        // Kelengkapan identitas rapat (20 poin)
+        identitas: [
+            { label: "Agenda Rapat", groups: [["keuangan"], ["pemasaran"]] },
+            { label: "Hari/Tanggal", exact: "2024-09-25" },
+            { label: "Waktu", rentang: ["13:00", "15:00"] },
+            { label: "Tempat", groups: [["ruang rapat utama"], ["kantor pusat"]] },
+            { label: "Organisasi Rapat", bebas: true },
+            { label: "Peserta Rapat", groups: [["pemasaran"], ["keuangan"], ["sdm"], ["produksi"], ["moderator"], ["notulis"]] }
+        ],
+        // Ketepatan susunan acara (10 poin)
+        acara: { label: "Susunan Acara", groups: [["pembukaan"], ["laporan", "diskusi"], ["penutup"]] },
+        // Ketepatan isi rapat (40 poin) — dinilai per pembicara
+        isi: {
+            label: "Isi Rapat",
+            pembicara: [
+                { nama: ["pemasaran"], groups: [["penjualan menurun", "penurunan penjualan", "penjualan mengalami penurunan"], ["fitur produk kurang menarik", "fitur kurang menarik"], ["perubahan tren konsumen", "tren konsumen"]] },
+                { nama: ["keuangan"], groups: [["keuangan menurun", "keuangan mengalami penurunan", "penurunan keuangan"], ["kurangi kegiatan tidak perlu", "kegiatan tidak perlu"], ["awasi ketat keuangan", "awasi ketat"]] },
+                { nama: ["sdm"], groups: [["efisiensi"], ["tingkatkan mutu produk", "mutu produk"], ["perluas pasar", "perluasan pasar"], ["tingkatkan laba", "laba"]] },
+                { nama: ["produksi"], groups: [["ekspansi"], ["ekspansi perlu dilakukan", "perlu dilakukan"]] }
+            ]
+        },
+        // Ketepatan hasil rapat (30 poin)
+        penutup: { label: "Penutup/Hasil Rapat", groups: [["penurunan"], ["mutu produk", "perluasan pasar"], ["ekspansi"]] }
+    },
+    "practice-l3": {
+        kkm: 75,
+        // Kelengkapan identitas rapat (20 poin)
+        identitas: [
+            { label: "Agenda Rapat", groups: [["evaluasi"], ["kinerja"]] },
+            { label: "Hari/Tanggal", exact: "2022-08-31" },
+            { label: "Waktu", rentang: ["08:00", "11:00"] },
+            { label: "Tempat", groups: [["hotel the langham", "the langham"], ["ruang b"], ["jakarta pusat"]] },
+            {
+                label: "Organisasi Rapat",
+                pemimpin: [["muhammad wildan rezi", "wildan rezi", "wildan"]],
+                notulis: [["alaika syamsa", "alaika"]]
+            },
+            { label: "Peserta Rapat", groups: [["kepegawaian"], ["produksi"], ["pemasaran"], ["direktur"]] }
+        ],
+        // Ketepatan susunan acara (10 poin)
+        acara: { label: "Susunan Acara", groups: [["pembukaan"], ["pembahasan", "diskusi"], ["penutup"]] },
+        // Ketepatan isi rapat (40 poin) — dinilai per pembicara
+        isi: {
+            label: "Isi Rapat",
+            pembicara: [
+                {
+                    nama: ["kepegawaian", "syafina"],
+                    groups: [
+                        ["kinerja pegawai menurun", "kinerja menurun"],
+                        ["kehadiran 75", "75%", "75 %"],
+                        ["keterlambatan 70", "70%", "70 %"],
+                        ["cuti di luar libur", "cuti di luar hari libur"],
+                        ["tidak disiplin"]
+                    ]
+                },
+                {
+                    nama: ["staff", "staf", "karyawan", "yuliah", "lutfiah", "rohani", "ambar"],
+                    groups: [
+                        ["hari libur kurang", "libur kurang", "cuti hanya 1 minggu"],
+                        ["kerja hari minggu", "hari minggu"],
+                        ["jam masuk kerja terlalu pagi", "terlalu pagi"],
+                        ["potongan gaji"],
+                        ["motivasi", "apresiasi"]
+                    ]
+                },
+                {
+                    nama: ["direktur utama", "wildan"],
+                    groups: [["kebijakan baru", "kebijakan"], ["kedisiplinan"]]
+                },
+                {
+                    nama: ["kepegawaian", "syafina"],
+                    groups: [
+                        ["ketegasan kerja di luar jam kerja", "ketegasan"],
+                        ["hak libur"]
+                    ]
+                },
+                {
+                    nama: ["kepala bagian produksi", "bella"],
+                    groups: [
+                        ["reward untuk kerja di hari libur", "reward"],
+                        ["cuti ditambah", "1 bulan"],
+                        ["pelatihan", "diklat"]
+                    ]
+                },
+                {
+                    nama: ["kepala bagian pemasaran", "wanda"],
+                    groups: [
+                        ["reward non-uang", "piagam", "sertifikat"],
+                        ["toleransi keterlambatan"],
+                        ["potong rp50.000", "rp50.000", "50.000"],
+                        ["jam masuk kerja dari jam 6 ke jam 8", "jam 8"]
+                    ]
+                }
+            ]
+        },
+        // Ketepatan hasil rapat (30 poin)
+        penutup: {
+            label: "Penutup/Hasil Rapat",
+            groups: [["kerja hari libur"], ["toleransi keterlambatan"], ["jam masuk kerja"], ["pelatihan", "diklat"], ["reward"]]
+        }
+    },
+    expert: {
+        kkm: 75,
+        // Kelengkapan identitas rapat (20 poin)
+        identitas: [
+            { label: "Agenda Rapat", groups: [["omset"], ["penurunan"]] },
+            { label: "Hari/Tanggal", exact: "2022-10-21" },
+            { label: "Waktu", rentang: ["08:00", "10:00"] },
+            { label: "Tempat", groups: [["ruang meeting"], ["sirclo store", "sirclo"]] },
+            {
+                label: "Organisasi Rapat",
+                pemimpin: [["rika ramadhania", "rika"]],
+                notulis: [["jeni wulandari", "jeni"]]
+            },
+            { label: "Peserta Rapat", groups: [["pemasaran"], ["produksi"], ["keuangan"], ["notulis", "dokumenter"]] }
+        ],
+        // Ketepatan susunan acara (10 poin)
+        acara: { label: "Susunan Acara", groups: [["pembukaan"], ["pembahasan"], ["penutup"]] },
+        // Ketepatan isi rapat (40 poin) — dinilai per pembicara
+        isi: {
+            label: "Isi Rapat",
+            pembicara: [
+                {
+                    nama: ["pimpinan", "pemimpin", "rika"],
+                    groups: [["omset menurun"], ["strategi"]]
+                },
+                {
+                    nama: ["pemasaran", "lina"],
+                    groups: [["turun 40", "40%", "40 %"], ["pesaing"], ["kualitas"]]
+                },
+                {
+                    nama: ["keuangan", "vinanda"],
+                    groups: [["stabil"], ["target"]]
+                },
+                {
+                    nama: ["produksi", "nonik"],
+                    groups: [["lancar"], ["mesin"], ["servis"]]
+                },
+                {
+                    nama: ["pimpinan", "pemimpin", "rika"],
+                    groups: [["pihak terkait", "hubungi"], ["servis"]]
+                },
+                {
+                    nama: ["sekretaris", "cantika"],
+                    groups: [["promosi"], ["monoton"], ["medsos", "media sosial", "e-commerce", "ecommerce"]]
+                },
+                {
+                    nama: ["produksi", "nonik"],
+                    groups: [["minimalis"], ["terjangkau"]]
+                },
+                {
+                    nama: ["keuangan", "vinanda"],
+                    groups: [["tidak setuju"], ["kurangi produksi"], ["diskon"]]
+                },
+                {
+                    nama: ["produksi", "nonik"],
+                    groups: [["menyanggah", "diskon besar"], ["untung sedikit"]]
+                },
+                {
+                    nama: ["keuangan", "vinanda"],
+                    groups: [["untung sedikit lebih baik", "tidak laku"]]
+                },
+                {
+                    nama: ["pimpinan", "pemimpin", "rika"],
+                    groups: [["hentikan produksi"], ["diskon"]]
+                },
+                {
+                    nama: ["pemasaran", "lina"],
+                    groups: [["konten visual", "medsos", "media sosial"], ["supplier", "jangkauan"]]
+                }
+            ]
+        },
+        // Ketepatan hasil rapat (30 poin)
+        penutup: {
+            label: "Penutup/Hasil Rapat",
+            groups: [["servis mesin", "servis"], ["media sosial", "medsos"], ["e-commerce", "ecommerce"], ["diskon"], ["target"]]
+        }
+    }
+};
+
+/** Bobot tiap bagian penilaian (total 100) */
+const BOBOT = { identitas: 20, acara: 10, isi: 40, penutup: 30 };
+
+/** Normalisasi jawaban: huruf kecil & spasi dirapikan. */
+function norm(v) {
+    return (v || "").toString().toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+/** Satu grup benar bila salah satu alternatifnya ada di dalam jawaban. */
+function grupCocok(teks, alternatif) {
+    return alternatif.some(a => teks.includes(norm(a)));
+}
+
+/** Field benar bila semua grupnya terpenuhi. */
+function fieldCocok(teks, grup) {
+    return grup.every(g => grupCocok(teks, g));
+}
+
+/** Nilai satu field identitas berdasarkan aturan rubriknya. */
+function fieldBenar(item, jawaban) {
+    if (item.bebas) return true;
+    if (item.exact) return norm(jawaban) === item.exact;
+    if (item.rentang) return norm(jawaban.mulai) === item.rentang[0] && norm(jawaban.selesai) === item.rentang[1];
+    if (item.pemimpin) {
+        return fieldCocok(norm(jawaban.pemimpin), item.pemimpin)
+            && fieldCocok(norm(jawaban.notulis), item.notulis);
+    }
+    return fieldCocok(norm(jawaban), item.groups);
+}
+
+/**
+ * Isi Rapat: kumpulkan semua baris yang namanya cocok dengan pembicara pada rubrik
+ * (boleh ditulis 1 baris atau dipecah beberapa baris), lalu nilai gabungan point-nya.
+ */
+function pembicaraBenar(rows, item) {
+    const cocok = rows.filter(r => item.nama.some(n => norm(r.nama).includes(norm(n))));
+    if (!cocok.length) return false;
+    return fieldCocok(norm(cocok.map(r => r.point).join(" ")), item.groups);
+}
+
+/**
+ * Hitung skor berbobot notula + status KKM.
+ * Kembalikan null bila latihan ini belum punya rubrik.
+ */
+function nilaiNotula(lvlId, d) {
+    const r = RUBRIK_NOTULA[lvlId];
+    if (!r) return null;
+
+    const salah = [];
+
+    // 1. Kelengkapan identitas rapat (20 poin) — dibagi rata per field
+    const jawabanIdentitas = {
+        "Agenda Rapat": d.agenda,
+        "Hari/Tanggal": d.tanggal,
+        "Waktu": { mulai: d.waktu, selesai: d.waktuSelesai },
+        "Tempat": d.tempat,
+        "Organisasi Rapat": { pemimpin: d.pemimpin, notulis: d.notulis },
+        "Peserta Rapat": d.peserta.join(" ")
+    };
+    let identitasBenar = 0;
+    r.identitas.forEach(f => {
+        if (fieldBenar(f, jawabanIdentitas[f.label])) identitasBenar++;
+        else salah.push(f.label);
+    });
+    let skor = BOBOT.identitas * (identitasBenar / r.identitas.length);
+
+    // 2. Ketepatan susunan acara (10 poin)
+    if (fieldCocok(norm(d.susunanAcara.join(" ")), r.acara.groups)) skor += BOBOT.acara;
+    else salah.push(r.acara.label);
+
+    // 3. Ketepatan isi rapat (40 poin) — dibagi rata per pembicara
+    const isiBenar = r.isi.pembicara.filter(p => pembicaraBenar(d.isiRapat, p)).length;
+    skor += BOBOT.isi * (isiBenar / r.isi.pembicara.length);
+    if (isiBenar < r.isi.pembicara.length) salah.push(r.isi.label);
+
+    // 4. Ketepatan hasil rapat (30 poin)
+    if (fieldCocok(norm(d.penutup), r.penutup.groups)) skor += BOBOT.penutup;
+    else salah.push(r.penutup.label);
+
+    const score = Math.round(skor);
+    return { score, kkm: r.kkm, lulus: score >= r.kkm, salah };
+}
+
 function formHtml() {
     return `
         <div class="form-group" style="margin-bottom: 0;">
@@ -46,11 +348,16 @@ function formHtml() {
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
             <div class="form-group" style="margin-bottom: 0;">
                 <label class="form-label">Hari/Tanggal</label>
-                <input class="form-input" id="lat-tanggal" type="text" placeholder="cth: Senin, 10 Agustus 2026">
+                <input class="form-input" id="lat-tanggal" type="date">
             </div>
             <div class="form-group" style="margin-bottom: 0;">
                 <label class="form-label">Waktu</label>
-                <input class="form-input" id="lat-waktu" type="text" placeholder="cth: 09.00 - 11.00 WIB">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <input class="form-input" id="lat-waktu" type="time" style="flex: 1; min-width: 0;" title="Waktu mulai">
+                    <span style="font-weight: 700; color: var(--text-secondary);">–</span>
+                    <input class="form-input" id="lat-waktu-selesai" type="time" style="flex: 1; min-width: 0;" title="Waktu selesai">
+                    <span style="font-weight: 700; color: var(--text-secondary);">WIB</span>
+                </div>
             </div>
         </div>
 
@@ -146,7 +453,10 @@ function pembicaraRowHtml() {
 
 export function renderLatihan(app, lvlId) {
     const cfg = LATIHAN_CONFIG[lvlId];
-    if (!cfg) return;
+    if (!cfg) return false;
+
+    // Sekali pakai: latihan yang sudah selesai tidak boleh dikerjakan ulang.
+    if (tolakKerjaUlang(app, lvlId)) return false;
 
     app.latihanActive = lvlId;
     app.latihanBack = lvlId === "expert" ? "expert" : "practice";
@@ -170,6 +480,38 @@ export function renderLatihan(app, lvlId) {
 
     // Render ulang form (kosong)
     document.getElementById("form-latihan").innerHTML = formHtml();
+    return true;
+}
+
+/**
+ * Cegah pengerjaan ulang tahap sekali-pakai (Practice & Expert).
+ * Kalau sudah selesai: tampilkan pesan penolakan + hasil sebelumnya, lalu kembalikan true.
+ */
+export function tolakKerjaUlang(app, lvlId) {
+    const lvl = app.state.tests?.[lvlId];
+    if (!lvl || lvl.status !== "completed") return false;
+
+    showToast(`🔒 ${lvl.title} hanya bisa dikerjakan sekali. Hasilmu sudah tersimpan.`, "error");
+    tampilkanHasilTersimpan(app, lvlId);
+    return true;
+}
+
+/** Tampilkan halaman Hasil berisi skor yang sudah tersimpan (tanpa membuka form). */
+function tampilkanHasilTersimpan(app, lvlId) {
+    const lvl = app.state.tests[lvlId];
+    const keExpert = lvlId === "expert";
+
+    document.getElementById("latihan-score").textContent = typeof lvl.score === "number" ? lvl.score : "—";
+
+    const feedback = document.getElementById("latihan-feedback");
+    feedback.innerHTML = `🔒 ${lvl.title} hanya bisa dikerjakan sekali.`
+        + `<br><span style="font-weight: 600;">Ini hasil kamu sebelumnya${lvl.date ? ` (${lvl.date})` : ""}.</span>`;
+    feedback.style.color = "var(--danger)";
+
+    document.getElementById("btn-latihan-next-label").textContent = `Kembali ke ${keExpert ? "Expert" : "Practice"}`;
+    app.latihanBack = keExpert ? "expert" : "practice";
+
+    navigateTo(app, "hasil-latihan");
 }
 
 export function initLatihan(app) {
@@ -240,7 +582,7 @@ export function initLatihan(app) {
         const checks = {
             "Agenda Rapat": val("lat-agenda"),
             "Hari/Tanggal": val("lat-tanggal"),
-            "Waktu": val("lat-waktu"),
+            "Waktu": val("lat-waktu") && val("lat-waktu-selesai"),
             "Tempat": val("lat-tempat"),
             "Pemimpin Rapat": val("lat-pemimpin"),
             "Notulis": val("lat-notulis"),
@@ -262,6 +604,7 @@ export function initLatihan(app) {
             agenda: checks["Agenda Rapat"] ? val("lat-agenda") : null,
             tanggal: val("lat-tanggal"),
             waktu: val("lat-waktu"),
+            waktuSelesai: val("lat-waktu-selesai"),
             tempat: val("lat-tempat"),
             pemimpin: val("lat-pemimpin"),
             notulis: val("lat-notulis"),
@@ -271,19 +614,26 @@ export function initLatihan(app) {
             penutup: val("lat-penutup")
         };
 
+        // Penilaian: cocokkan tiap field dengan kata kunci pada rubrik.
+        const nilai = nilaiNotula(lvlId, notulaData);
+
         // Tandai selesai
         lvl.status = "completed";
-        lvl.score = 100;
+        lvl.score = nilai ? nilai.score : 100;
         lvl.date = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric' });
         app.saveState();
 
         // Kirim hasil ke Supabase (status stage + attempt + stats). Aman gagal (offline).
-        pushSiswaResult(app.state, { levelId: lvlId, score: 100, completed: true, answers: notulaData })
+        pushSiswaResult(app.state, { levelId: lvlId, score: lvl.score, completed: true, answers: notulaData })
             .catch(err => console.warn("Gagal sinkron latihan:", err));
 
         // Expert: tantangan akhir → langsung kembali ke menu Expert (tanpa halaman skor)
         if (lvlId === "expert") {
-            showToast("🏆 Tantangan akhir selesai! Kamu berhasil menuntaskan Expert Level!", "success");
+            // Expert tidak lewat halaman Hasil, jadi skor + status KKM diumumkan lewat toast.
+            const pesan = nilai
+                ? `🏆 Tantangan akhir selesai! Skor ${nilai.score} — ${nilai.lulus ? "lulus" : "belum lulus"} KKM ${nilai.kkm}.`
+                : "🏆 Tantangan akhir selesai! Kamu berhasil menuntaskan Expert Level!";
+            showToast(pesan, nilai && !nilai.lulus ? "error" : "success");
             navigateTo(app, "expert", { skipGreeting: true });
             return;
         }
@@ -292,13 +642,26 @@ export function initLatihan(app) {
         const nextId = NEXT_LEVEL[lvlId];
         if (nextId) app.state.tests[nextId].status = "unlocked";
         document.getElementById("latihan-score").textContent = lvl.score;
-        document.getElementById("latihan-feedback").innerHTML = `🎉 Kamu berhasil melewati ${lvl.title}!`;
+        document.getElementById("btn-latihan-next-label").textContent = "Lanjut ke Latihan Berikutnya";
+        const feedback = document.getElementById("latihan-feedback");
+        if (nilai) {
+            const status = nilai.lulus
+                ? `✅ Lulus KKM (${nilai.kkm})`
+                : `⚠️ Belum lulus KKM ${nilai.kkm}`;
+            feedback.innerHTML = status + (nilai.salah.length
+                ? `<br><span style="color: var(--danger); font-weight: 600;">Belum sesuai: ${nilai.salah.join(", ")}</span>`
+                : "");
+            feedback.style.color = nilai.lulus ? "var(--success)" : "var(--danger)";
+        } else {
+            feedback.textContent = `🎉 Kamu berhasil melewati ${lvl.title}!`;
+            feedback.style.color = "var(--success)";
+        }
         navigateTo(app, "hasil-latihan");
     });
 }
 
 export function initLatihanNext(app) {
     document.getElementById("btn-latihan-next").addEventListener("click", () => {
-        navigateTo(app, "practice", { skipGreeting: true });
+        navigateTo(app, app.latihanBack || "practice", { skipGreeting: true });
     });
 }

@@ -311,7 +311,7 @@ function fmtAnswerLines(ans) {
 
     if (a.jenis === "notula") {
         return row("Agenda Rapat", a.agenda)
-            + row("Hari/Tanggal", a.tanggal) + row("Waktu", a.waktu) + row("Tempat", a.tempat)
+            + row("Hari/Tanggal", a.tanggal) + row("Waktu", a.waktu ? `${a.waktu}${a.waktuSelesai ? ` – ${a.waktuSelesai}` : ""} WIB` : "") + row("Tempat", a.tempat)
             + row("Pemimpin Rapat", a.pemimpin) + row("Notulis", a.notulis)
             + list("Peserta", a.peserta) + list("Susunan Acara", a.susunanAcara)
             + list("Isi Rapat", a.isiRapat) + row("Penutup/Hasil", a.penutup);

@@ -32,6 +32,15 @@
     --xp-color: #2979ff; /* Blue */
     --heart-color: #ec4899; /* Pink */
     --coin-color: #eab308; /* Yellow */
+
+    /* Gelombang dekoratif di dalam kartu berwarna (atas & bawah, mengikuti warna kartu) */
+    --card-wave-blue: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320' preserveAspectRatio='none'%3E%3Cpath fill='%23134fb5' fill-opacity='0.45' d='M0,90L120,102C260,116,400,128,560,122C720,116,880,92,1040,88C1200,84,1340,98,1440,108L1440,0L0,0Z'/%3E%3Cpath fill='%23134fb5' fill-opacity='0.45' d='M0,230L120,218C260,204,400,192,560,198C720,204,880,228,1040,232C1200,236,1340,222,1440,212L1440,320L0,320Z'/%3E%3C/svg%3E");
+    --card-wave-yellow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320' preserveAspectRatio='none'%3E%3Cpath fill='%23a16207' fill-opacity='0.35' d='M0,90L120,102C260,116,400,128,560,122C720,116,880,92,1040,88C1200,84,1340,98,1440,108L1440,0L0,0Z'/%3E%3Cpath fill='%23a16207' fill-opacity='0.35' d='M0,230L120,218C260,204,400,192,560,198C720,204,880,228,1040,232C1200,236,1340,222,1440,212L1440,320L0,320Z'/%3E%3C/svg%3E");
+
+    /* Teks & aksen di atas kartu kuning: putih */
+    --on-yellow: #ffffff;
+    --on-yellow-soft: rgba(255, 255, 255, 0.92);
+    --on-yellow-muted: rgba(255, 255, 255, 0.8);
     --streak-color: #f97316; /* Orange */
 
     /* UI Details */
@@ -88,7 +97,14 @@ button {
 
 /* Sidebar Styling */
 .sidebar {
-    background: var(--bg-card);
+    /* Lebih transparan di ujung atas & bawah agar gelombang latar ikut terlihat (nyambung), tetap padat di tengah demi keterbacaan menu */
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.5) 0%,
+        rgba(255, 255, 255, 0.84) 32%,
+        rgba(255, 255, 255, 0.84) 68%,
+        rgba(255, 255, 255, 0.5) 100%
+    );
     border-right: 1px solid var(--border-color);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -110,9 +126,9 @@ button {
 }
 
 .brand-logo {
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    width: 48px;
+    height: 48px;
+    background: url("documents/logo-final.png") center / contain no-repeat;
     border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
@@ -120,19 +136,16 @@ button {
     color: white;
 }
 
+/* Ikon SVG lama disembunyikan; diganti gambar logo-final.png */
 .brand-logo svg {
-    width: 20px;
-    height: 20px;
+    display: none;
 }
 
-.brand-name {
-    font-family: var(--font-heading);
-    font-size: 1.5rem;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-    background: linear-gradient(to right, var(--primary), var(--secondary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+/* Logo sidebar (siswa & admin) diperbesar via transform,
+   jadi menu di bawahnya tidak ikut bergeser. */
+.sidebar .brand .brand-logo {
+    transform: translateY(-24px) scale(2.3);
+    transform-origin: top left;
 }
 
 .nav-menu {
@@ -153,9 +166,9 @@ button {
     transition: var(--transition);
 }
 
-.nav-item .icon svg {
-    width: 20px;
-    height: 20px;
+.nav-item .icon {
+    font-size: 20px;
+    line-height: 1;
     transition: transform 0.2s ease;
 }
 
@@ -180,9 +193,8 @@ button {
     opacity: 0.85;
 }
 
-.nav-item-small .icon svg {
-    width: 18px;
-    height: 18px;
+.nav-item-small .icon {
+    font-size: 18px;
 }
 
 .sidebar-footer {
@@ -305,6 +317,7 @@ button {
 .views-container {
     position: relative;
     flex-grow: 1;
+    min-height: 0;
 }
 
 .app-view {
@@ -348,11 +361,125 @@ button {
     display: flex;
 }
 
-/* Panduan page content taller than viewport: flexbox centering would clip
-   the top and make it unreachable when scrolling, so align from top. */
+/* Halaman login: kartu login tetap putih, di atas dekorasi gelombang */
+#login-card {
+    background-color: #ffffff;
+    position: relative;
+    z-index: 1;
+}
+
+/* Onboarding & Panduan: latar transparan agar gelombang biru global
+   (dekorasi .bg-wave, senada halaman dashboard) terlihat */
+#screen-onboarding,
 #screen-panduan {
-    justify-content: flex-start;
-    align-items: flex-start;
+    background: transparent;
+}
+
+/* Panduan: seluruh konten dibungkus satu kartu yang ditengahkan,
+   tinggi mengikuti isi (tanpa scroll internal), tetap ada jarak dari tepi layar. */
+#screen-panduan {
+    justify-content: center;
+    align-items: center;
+    padding: 84px 24px 24px;
+}
+
+/* Logo sudut kiri atas halaman panduan: 4x lebih besar via transform (tidak mengubah layout),
+   selalu tampil di depan section */
+#screen-panduan .panduan-brand {
+    position: relative;
+    z-index: 30;
+    pointer-events: none;
+    transform: translateY(-60px);
+}
+
+#screen-panduan .panduan-brand .brand-logo {
+    transform: scale(4);
+    transform-origin: top left;
+}
+
+/* --- HALAMAN DETAIL PANDUAN (Navigasi, Pengantar, Isi Menu, Gamifikasi) --- */
+#screen-navigasi,
+#screen-pengantar,
+#screen-isi,
+#screen-gamifikasi {
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    background: transparent;
+}
+
+.panduan-section-title {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    margin-bottom: 16px;
+}
+
+.panduan-card-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    background: rgba(41, 121, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.panduan-card-icon svg {
+    width: 30px;
+    height: 30px;
+    color: var(--primary);
+}
+
+.panduan-card-icon.danger {
+    background: rgba(239, 68, 68, 0.12);
+}
+
+.panduan-card-icon.danger svg {
+    color: var(--danger);
+}
+
+/* Kartu halaman detail: warna biru & kuning selang-seling, senada kartu menu lain */
+.panduan-color-cards > .card {
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+    color: var(--detail-title, var(--text-primary));
+}
+.panduan-color-cards > .card:nth-child(odd) {
+    background-image: var(--card-wave-blue), linear-gradient(135deg, #2979ff 0%, #1d4ed8 100%);
+    background-color: #2979ff;
+    border-color: rgba(255, 255, 255, 0.35);
+    --detail-title: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.92);
+    --text-muted: rgba(255, 255, 255, 0.75);
+}
+.panduan-color-cards > .card:nth-child(even) {
+    background-image: var(--card-wave-yellow), linear-gradient(135deg, #facc15 0%, #eab308 100%);
+    background-color: #facc15;
+    border-color: rgba(255, 255, 255, 0.45);
+    --detail-title: var(--on-yellow);
+    --text-secondary: var(--on-yellow-soft);
+    --text-muted: var(--on-yellow-muted);
+}
+.panduan-color-cards > .card .panduan-card-icon {
+    background: rgba(255, 255, 255, 0.3);
+}
+.panduan-color-cards > .card .panduan-card-icon svg {
+    color: currentColor;
+}
+/* Ikon X tetap merah sesuai labelnya */
+.panduan-color-cards > .card .panduan-card-icon.danger {
+    background: rgba(255, 255, 255, 0.55);
+}
+.panduan-color-cards > .card .panduan-card-icon.danger svg {
+    color: var(--danger);
+}
+/* Kartu kuning: chip ikon digelapkan agar ikon putih tetap terbaca */
+.panduan-color-cards > .card:nth-child(even) .panduan-card-icon {
+    background: rgba(0, 0, 0, 0.15);
+}
+.panduan-color-cards > .card:nth-child(even) .panduan-card-icon.danger {
+    background: rgba(0, 0, 0, 0.25);
 }
 
 /* --- AUDIO TOGGLE (Landing corner) --- */
@@ -440,19 +567,163 @@ button {
     border-color: var(--border-color-glow);
 }
 
-/* Kartu menu dashboard: tilt halus 3D + glow biru saat hover */
+/* Kartu menu dashboard: 3 kolom x 2 baris, mengisi seluruh area konten + tilt 3D saat hover */
+#view-dashboard.active {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+}
+
+#dashboard-container {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+}
+
 .dash-menu-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 20px;
     perspective: 900px;
 }
-.card.dash-card {
-    transform-style: preserve-3d;
-    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease, border-color 0.3s ease;
-    will-change: transform;
+
+@media (max-width: 1024px) {
+    .dash-menu-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+    }
 }
-.card.dash-card:hover {
-    transform: translateY(-5px) rotateX(5deg) rotateY(-5deg) scale(1.04);
-    border-color: var(--border-color-glow);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 16px 36px rgba(41, 121, 255, 0.25);
+
+@media (max-width: 640px) {
+    #dashboard-container {
+        display: block;
+    }
+    .dash-menu-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: none;
+        grid-auto-rows: minmax(130px, auto);
+    }
+}
+
+.card.dash-card {
+    transform-style: flat;
+}
+/* Kartu menu dashboard: tanpa animasi/efek apa pun saat hover maupun klik */
+.card.dash-card,
+.card.dash-card:hover,
+.card.dash-card:active {
+    transform: none;
+    transition: none;
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), var(--shadow-main);
+}
+.card.dash-card .menu-icon,
+.card.dash-card:hover .menu-icon,
+.card.dash-card:active .menu-icon {
+    transform: none;
+    transition: none;
+}
+
+/* Semua kartu berwarna: siapkan lapisan gelombang (gelombang + gradasi warna kartu) */
+.card.dash-card,
+.card.atp-card,
+.stack-cards > .stack-card {
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+}
+
+/* Warna kartu menu dashboard: biru & kuning selang-seling */
+.card.dash-card:nth-child(odd) {
+    background-image: var(--card-wave-blue), linear-gradient(135deg, #2979ff 0%, #1d4ed8 100%);
+    background-color: #2979ff;
+    border-color: rgba(255, 255, 255, 0.35);
+    --dash-title: #ffffff;
+    --dash-desc: rgba(255, 255, 255, 0.92);
+    --dash-arrow-bg: #ffffff;
+    --dash-arrow-color: #1d4ed8;
+}
+.card.dash-card:nth-child(even) {
+    background-image: var(--card-wave-yellow), linear-gradient(135deg, #facc15 0%, #eab308 100%);
+    background-color: #facc15;
+    border-color: rgba(255, 255, 255, 0.45);
+    --dash-title: var(--on-yellow);
+    --dash-desc: var(--on-yellow-soft);
+    --dash-arrow-bg: rgba(0, 0, 0, 0.18);
+    --dash-arrow-color: var(--on-yellow);
+}
+
+/* Panah penanda "klik / lanjut": kecil, di samping deskripsi kartu */
+.card.dash-card .dash-arrow {
+    flex: 0 0 auto;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--dash-arrow-bg, #ffffff);
+    color: var(--dash-arrow-color, var(--primary));
+    font-size: 0.85rem;
+    font-weight: 800;
+    transition: none;
+}
+
+/* Halaman ATP: kartu memanjang, tersusun vertikal, warna biru/kuning selang-seling */
+.atp-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+.card.atp-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 24px;
+    width: 100%;
+    padding: 26px 32px;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+}
+.card.atp-card .atp-emoji {
+    flex: 0 0 auto;
+    font-size: 3rem;
+    line-height: 1;
+}
+.card.atp-card .atp-text {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.card.atp-card .atp-title {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--atp-title, var(--text-primary));
+}
+.card.atp-card .atp-desc {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--atp-desc, var(--text-secondary));
+}
+.card.atp-card:nth-child(odd) {
+    background-image: var(--card-wave-blue), linear-gradient(135deg, #2979ff 0%, #1d4ed8 100%);
+    background-color: #2979ff;
+    border-color: rgba(255, 255, 255, 0.35);
+    --atp-title: #ffffff;
+    --atp-desc: rgba(255, 255, 255, 0.92);
+}
+.card.atp-card:nth-child(even) {
+    background-image: var(--card-wave-yellow), linear-gradient(135deg, #facc15 0%, #eab308 100%);
+    background-color: #facc15;
+    border-color: rgba(255, 255, 255, 0.45);
+    --atp-title: var(--on-yellow);
+    --atp-desc: var(--on-yellow-soft);
 }
 
 .landing-container {
@@ -465,9 +736,9 @@ button {
 }
 
 .landing-logo {
-    width: 72px;
-    height: 72px;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    width: 96px;
+    height: 96px;
+    background: url("documents/logo-final.png") center / contain no-repeat;
     border-radius: 20px;
     display: flex;
     align-items: center;
@@ -477,37 +748,96 @@ button {
     margin-bottom: 24px;
 }
 
+/* Ikon SVG lama disembunyikan; diganti gambar logo-final.png */
 .landing-logo svg {
-    width: 40px;
-    height: 40px;
+    display: none;
 }
 
-.landing-title {
+/* --- LANDING & LOGIN: nuansa biru + gelombang, konten langsung tanpa card --- */
+#screen-landing,
+#screen-login {
+    flex-direction: column;
+    background: linear-gradient(160deg, #1d4ed8 0%, #2979ff 45%, #00c2f3 100%);
+    overflow: hidden;
+}
+
+/* Gelombang dekoratif atas & bawah, senada halaman dashboard */
+#screen-landing::before,
+#screen-landing::after,
+#screen-login::before,
+#screen-login::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 240px;
+    pointer-events: none;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320' preserveAspectRatio='none'%3E%3Cpath fill='%23ffffff' fill-opacity='0.10' d='M0,224L80,213.3C160,203,320,181,480,186.7C640,192,800,224,960,229.3C1120,235,1280,213,1360,202.7L1440,192L1440,0L0,0Z'/%3E%3Cpath fill='%23ffffff' fill-opacity='0.14' d='M0,160L80,170.7C160,181,320,203,480,197.3C640,192,800,160,960,154.7C1120,149,1280,171,1360,181.3L1440,192L1440,0L0,0Z'/%3E%3C/svg%3E");
+}
+#screen-landing::before,
+#screen-login::before {
+    top: 0;
+}
+#screen-landing::after,
+#screen-login::after {
+    bottom: 0;
+    transform: scaleY(-1);
+}
+
+.landing-hero {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 24px;
+}
+
+.landing-hero-logo {
+    width: 200px;
+    height: 200px;
+    padding: 16px;
+    border-radius: 36px;
+    background-color: #ffffff;
+    background-image: url("documents/logo-final.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 78%;
+    background-clip: content-box;
+    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.28);
+    margin-bottom: 28px;
+}
+
+.landing-hero-title {
+    font-family: var(--font-heading);
     font-size: 2.8rem;
-    font-weight: 800;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
-    background: linear-gradient(to right, var(--primary), var(--secondary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #ffffff;
+    margin-bottom: 12px;
 }
 
-.landing-tagline {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: var(--secondary);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 16px;
-    text-align: center;
-}
-
-.landing-description {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    text-align: center;
+.landing-hero-desc {
+    font-size: 1.15rem;
     line-height: 1.6;
-    margin-bottom: 32px;
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 520px;
+    margin-bottom: 36px;
+}
+
+.landing-hero-btn {
+    background: linear-gradient(135deg, #facc15 0%, #eab308 100%);
+    color: #3f2d00;
+    padding: 16px 32px;
+    font-size: 1.05rem;
+    box-shadow: 0 10px 26px rgba(234, 179, 8, 0.45);
+}
+
+.landing-hero-btn:hover {
+    background: linear-gradient(135deg, #fde047 0%, #facc15 100%);
+    color: #3f2d00;
+    box-shadow: 0 14px 32px rgba(234, 179, 8, 0.55);
 }
 
 .landing-features {
@@ -742,6 +1072,17 @@ button {
     height: 16px;
 }
 
+/* Navigasi alur belajar (Beginner: materi -> contoh -> latihan) */
+.journey-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 32px;
+    margin-bottom: 32px;
+}
+
 /* --- ATP VIEW SPECIFICS --- */
 .dashboard-grid {
     display: grid;
@@ -904,6 +1245,40 @@ button {
     color: var(--success);
 }
 
+/* Kartu "Mulai Kuis" di halaman Expert: biru senada kartu menu lain */
+#level-expert-container .tes-card {
+    background-image: var(--card-wave-blue), linear-gradient(135deg, #2979ff 0%, #1d4ed8 100%);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+    background-color: #2979ff;
+    border-color: rgba(255, 255, 255, 0.35);
+    color: #ffffff;
+}
+/* Terkunci: tetap biru, hanya diredupkan */
+#level-expert-container .tes-card.locked {
+    filter: none;
+    opacity: 0.72;
+}
+#level-expert-container .tes-card .tes-level-preview {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.45);
+}
+#level-expert-container .tes-card .tes-badge-status {
+    background: rgba(255, 255, 255, 0.9);
+    color: #1d4ed8;
+}
+#level-expert-container .tes-card .btn-tes-action {
+    background: #ffffff;
+    border-color: transparent;
+    color: #1d4ed8;
+}
+#level-expert-container .tes-card .btn-tes-action:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.85);
+    border-color: transparent;
+    color: #1d4ed8;
+}
+
 /* Quest Overlay */
 .quest-overlay {
     position: fixed;
@@ -944,9 +1319,8 @@ button {
     transform: scale(1);
 }
 
-/* Modal info (ATP & Panduan): body bisa scroll bila konten panjang */
-#atp-modal-body,
-#panduan-modal-body {
+/* Modal info ATP: body bisa scroll bila konten panjang */
+#atp-modal-body {
     max-height: 55vh;
     overflow-y: auto;
     padding-right: 4px;
@@ -1505,7 +1879,7 @@ button {
 .card[data-panduan]:hover > span:first-child,
 .card[data-atp]:hover > span:first-child,
 .card.menu-option:hover > span:first-child,
-.card[data-target]:hover .menu-icon {
+.card[data-target]:not(.dash-card):hover .menu-icon {
     transform: translateY(-4px) rotate(-10deg) scale(1.2);
 }
 
@@ -1539,7 +1913,7 @@ button {
 .modal-overlay {
     position: fixed;
     inset: 0;
-    z-index: 3000;
+    z-index: 20000;
     background: rgba(15, 23, 42, 0.55);
     backdrop-filter: blur(4px);
     display: flex;
@@ -1658,6 +2032,10 @@ button {
         box-shadow: none;
     }
 
+    .bottom-nav .nav-item .icon {
+        font-size: 24px;
+    }
+
     .bottom-nav .nav-item.active {
         background: none;
         color: var(--primary);
@@ -1679,4 +2057,146 @@ button {
         align-items: flex-start;
         gap: 20px;
     }
+}
+
+/* --- KARTU DAFTAR MEMANJANG (Beginner / Practice / Referensi) ---
+   Tersusun vertikal, emoji di paling kiri, warna biru/kuning selang-seling. */
+.stack-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    width: 100%;
+}
+.stack-cards > .stack-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 24px;
+    width: 100%;
+    padding: 26px 32px;
+}
+.stack-cards > .stack-card .tes-level-preview,
+.stack-cards > .stack-card .stack-emoji {
+    order: 1;
+    flex: 0 0 auto;
+    width: auto;
+    height: auto;
+    border: none;
+    border-radius: 0;
+    background: none;
+    font-size: 3rem;
+    line-height: 1;
+}
+.stack-cards > .stack-card .shop-item-details {
+    order: 2;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.stack-cards > .stack-card .shop-item-name {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--stack-title, var(--text-primary));
+}
+.stack-cards > .stack-card .shop-item-desc {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--stack-desc, var(--text-secondary));
+}
+.stack-cards > .stack-card .tes-badge-status {
+    order: 4;
+    position: static;
+    flex: 0 0 auto;
+    background: rgba(255, 255, 255, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    color: var(--stack-title, var(--text-primary));
+}
+.stack-cards > .stack-card .btn-tes-action {
+    order: 3;
+    flex: 0 0 auto;
+    margin-top: 0;
+    background: rgba(255, 255, 255, 0.95);
+    border-color: transparent;
+    color: var(--stack-btn, var(--primary));
+}
+.stack-cards > .stack-card .btn-tes-action:hover:not(:disabled) {
+    background: #ffffff;
+    border-color: transparent;
+    color: var(--stack-btn, var(--primary));
+}
+.stack-cards > .stack-card:nth-child(odd) {
+    background-image: var(--card-wave-blue), linear-gradient(135deg, #2979ff 0%, #1d4ed8 100%);
+    background-color: #2979ff;
+    border-color: rgba(255, 255, 255, 0.35);
+    --stack-title: #ffffff;
+    --stack-desc: rgba(255, 255, 255, 0.92);
+    --stack-btn: #1d4ed8;
+}
+.stack-cards > .stack-card:nth-child(even) {
+    background-image: var(--card-wave-yellow), linear-gradient(135deg, #facc15 0%, #eab308 100%);
+    background-color: #facc15;
+    border-color: rgba(255, 255, 255, 0.45);
+    --stack-title: var(--on-yellow);
+    --stack-desc: var(--on-yellow-soft);
+    --stack-btn: var(--on-yellow);
+}
+/* Kartu kuning: tombol aksi digelapkan agar teks putih tetap terbaca */
+.stack-cards > .stack-card:nth-child(even) .btn-tes-action {
+    background: rgba(0, 0, 0, 0.18);
+    border-color: rgba(255, 255, 255, 0.55);
+    color: var(--on-yellow);
+}
+@media (max-width: 640px) {
+    .stack-cards > .stack-card {
+        flex-wrap: wrap;
+        gap: 16px;
+        padding: 22px 24px;
+    }
+}
+
+/* Kartu Tahap di halaman Progres: warna biru & kuning selang-seling */
+.card.tahap-card {
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+}
+.card.tahap-card h3 {
+    color: var(--tahap-title, var(--text-primary));
+}
+.card.tahap-card:nth-child(odd) {
+    background-image: var(--card-wave-blue), linear-gradient(135deg, #2979ff 0%, #1d4ed8 100%);
+    border-color: rgba(255, 255, 255, 0.35);
+    --tahap-title: #ffffff;
+    --tahap-desc: rgba(255, 255, 255, 0.92);
+}
+.card.tahap-card:nth-child(even) {
+    background-image: var(--card-wave-yellow), linear-gradient(135deg, #facc15 0%, #eab308 100%);
+    border-color: rgba(255, 255, 255, 0.45);
+    --tahap-title: var(--on-yellow);
+    --tahap-desc: var(--on-yellow-soft);
+}
+
+/* --- DEKORASI GELOMBANG BIRU (atas & bawah) ---
+   z-index negatif + pointer-events none: hanya latar, tidak menutup/menggeser konten. */
+.bg-wave {
+    position: fixed;
+    left: 0;
+    width: 100%;
+    height: 240px;
+    z-index: -1;
+    pointer-events: none;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320' preserveAspectRatio='none'%3E%3Cpath fill='%2300c2f3' fill-opacity='0.18' d='M0,224L80,213.3C160,203,320,181,480,186.7C640,192,800,224,960,229.3C1120,235,1280,213,1360,202.7L1440,192L1440,0L0,0Z'/%3E%3Cpath fill='%232979ff' fill-opacity='0.22' d='M0,160L80,170.7C160,181,320,203,480,197.3C640,192,800,160,960,154.7C1120,149,1280,171,1360,181.3L1440,192L1440,0L0,0Z'/%3E%3C/svg%3E"),
+        linear-gradient(180deg, rgba(41, 121, 255, 0.10), transparent);
+}
+.bg-wave-top {
+    top: 0;
+}
+.bg-wave-bottom {
+    bottom: 0;
+    transform: scaleY(-1);
 }

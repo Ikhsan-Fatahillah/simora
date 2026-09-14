@@ -12,7 +12,7 @@ import { getSession, fetchCurrentProfile, signOutCurrentUser, pullSiswaState, pr
 import { initOnboarding } from "./pages/onboarding.js";
 import { renderPractice } from "./pages/tes.js";
 import { startQuiz, nextQuestion, exitQuiz } from "./pages/quiz.js";
-import { initLatihan, initLatihanNext } from "./pages/latihan.js";
+import { initLatihan, initLatihanNext, renderLatihan, tolakKerjaUlang } from "./pages/latihan.js";
 import { renderExpert, initExpert } from "./pages/expert.js";
 import { renderProgres } from "./pages/progres.js";
 import { initAtp } from "./pages/atp.js";
@@ -29,7 +29,7 @@ async function init() {
         console.warn("Gagal cek sesi Supabase:", err);
     }
 
-    // Profil (username/role) menentukan kunci penyimpanan lokal per akun.
+    // Profil (username/role) menentukan kunci penyimpanan lokal per akun (uid).
     // Progres siswa tidak pernah bocor antar-akun di perangkat yang sama.
     let authProfile = null;
     if (sessionUser) {
@@ -40,16 +40,18 @@ async function init() {
         }
     }
 
-    const activeKey = authProfile?.username ? stateKeyFor(authProfile.username) : undefined;
+    const activeKey = authProfile?.id ? stateKeyFor(authProfile.id) : undefined;
     const stored = loadState(activeKey);
 
     stored.auth = stored.auth || {};
     stored.auth.isLoggedIn = !!authProfile;
     if (authProfile) {
+        stored.auth.userId = authProfile.id;
         stored.auth.username = authProfile.username;
         stored.auth.role = authProfile.role;
         stored.auth.nama = authProfile.nama;
     } else {
+        stored.auth.userId = null;
         stored.auth.username = null;
         stored.auth.role = null;
         stored.auth.nama = null;
@@ -119,9 +121,10 @@ async function init() {
 
     // --- Backsound & tombol suara ---
     // Backsound: nyala sejak berhasil login, mati hanya saat logout.
-    // Tombol ikon suara tampil di pojok kanan atas semua halaman setelah login.
+    // Tombol ikon suara hanya tampil di dalam workspace (setelah masuk dashboard),
+    // bukan di landing / login / onboarding / panduan.
     const wsAudioBtn = document.getElementById("ws-audio-toggle");
-    const landingAudioBtn = document.getElementById("btn-audio-toggle");
+    const isFullScreenActive = () => !!document.querySelector(".full-screen-view.active");
     const setWsAudioVisible = (visible) => {
         if (wsAudioBtn) wsAudioBtn.style.display = visible ? "flex" : "none";
     };
@@ -129,7 +132,7 @@ async function init() {
     const syncBgm = () => {
         const muted = localStorage.getItem("simora_muted") === "1";
         const loggedIn = !!app.state.auth.isLoggedIn;
-        setWsAudioVisible(loggedIn);
+        setWsAudioVisible(loggedIn && !isFullScreenActive());
         if (wsAudioBtn) {
             wsAudioBtn.title = muted ? "Suara: Mati" : "Suara: Nyala";
             wsAudioBtn.classList.toggle("muted", muted);
@@ -161,10 +164,9 @@ async function init() {
     // Enter pada form login = login sukses → mulai backsound seketika
     document.addEventListener("submit", () => syncBgm());
 
-    // Audio toggle (pojok landing & pojok kanan atas halaman login)
+    // Audio toggle (pojok kanan atas workspace)
     const applyAudioToggle = (muted) => {
         localStorage.setItem("simora_muted", muted ? "1" : "0");
-        if (landingAudioBtn) landingAudioBtn.classList.toggle("muted", muted);
         syncBgm();
     };
 
@@ -172,10 +174,9 @@ async function init() {
         const isMuted = localStorage.getItem("simora_muted") === "1";
         applyAudioToggle(!isMuted);
     };
-    if (landingAudioBtn) landingAudioBtn.addEventListener("click", toggleAudio);
     if (wsAudioBtn) wsAudioBtn.addEventListener("click", toggleAudio);
     applyAudioToggle(localStorage.getItem("simora_muted") === "1");
-    setWsAudioVisible(!!app.state.auth.isLoggedIn);
+    setWsAudioVisible(!!app.state.auth.isLoggedIn && !isFullScreenActive());
 
     // Logout Handlers
     const handleLogout = async () => {
@@ -198,6 +199,7 @@ async function init() {
         app.state.auth.isLoggedIn = false;
         app.state.auth.hasCompletedOnboarding = false;
         app.state.auth.username = null; // end session: bersihkan identitas akun
+        app.state.auth.userId = null;
         app.state.auth.role = null;
         app.saveState();
 
@@ -213,6 +215,8 @@ async function init() {
     document.getElementById("admin-logout-btn").addEventListener("click", handleLogout);
     const adminBottomLogout = document.getElementById("admin-bottom-logout");
     if (adminBottomLogout) adminBottomLogout.addEventListener("click", handleLogout);
+    const panduanLogout = document.getElementById("btn-panduan-logout");
+    if (panduanLogout) panduanLogout.addEventListener("click", handleLogout);
 
     // Quest overlay controls (Tes)
     document.getElementById("close-quest-overlay").addEventListener("click", () => {
@@ -239,10 +243,13 @@ async function init() {
     document.getElementById("btn-beginner-materi").addEventListener("click", () => showBeginnerSection("materi"));
     document.getElementById("btn-beginner-contoh").addEventListener("click", () => showBeginnerSection("contoh"));
     document.getElementById("btn-beginner-back-menu").addEventListener("click", () => showBeginnerSection("menu"));
-    document.getElementById("btn-beginner-back-menu-2").addEventListener("click", () => showBeginnerSection("menu"));
+    document.getElementById("btn-beginner-back-menu-2").addEventListener("click", () => showBeginnerSection("materi"));
 
-    // Beginner (materi) -> Practice: tandai selesai & buka kunci Practice
-    document.getElementById("btn-beginner-to-practice").addEventListener("click", () => {
+    // Alur Beginner: materi -> contoh notula -> latihan 1
+    document.getElementById("btn-materi-next").addEventListener("click", () => showBeginnerSection("contoh"));
+
+    // Tandai Beginner selesai & buka kunci Practice (dipakai tombol menu & akhir alur)
+    const selesaikanBeginner = () => {
         const beginner = app.state.tests.beginner;
         beginner.status = "completed";
         beginner.score = 100;
@@ -252,6 +259,21 @@ async function init() {
         app.saveState();
         pushSiswaResult(app.state, { levelId: "beginner", score: 100, completed: true, answers: null })
             .catch(err => console.warn("Gagal sinkron beginner:", err));
+    };
+
+    // Akhir alur: langsung masuk Latihan 1
+    document.getElementById("btn-contoh-next").addEventListener("click", () => {
+        // Latihan 1 sekali pakai: kalau sudah selesai, tolak & tampilkan hasil sebelumnya.
+        if (tolakKerjaUlang(app, "practice-l1")) return;
+        selesaikanBeginner();
+        if (!renderLatihan(app, "practice-l1")) return;
+        navigateTo(app, "latihan");
+        showToast("Materi selesai! Lanjut Latihan 1.", "success");
+    });
+
+    // Beginner (materi) -> Practice: tandai selesai & buka kunci Practice
+    document.getElementById("btn-beginner-to-practice").addEventListener("click", () => {
+        selesaikanBeginner();
         navigateTo(app, "practice");
         showToast("Materi selesai! Practice Level terbuka!", "success");
     });

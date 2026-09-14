@@ -42,6 +42,7 @@ export function initOnboarding(app) {
         document.getElementById("screen-panduan").classList.remove("active");
         document.getElementById("app-workspace").style.display = "grid";
         navigateTo(app, "dashboard");
+        if (app.syncBgm) app.syncBgm(); // ikon suara muncul setelah masuk dashboard
         showToast("Selamat datang di Dashboard SIMORA!", "success");
     }
 }

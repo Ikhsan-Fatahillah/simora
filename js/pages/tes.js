@@ -65,7 +65,7 @@ export function renderPractice(app) {
     container.innerHTML = "";
 
     const grid = document.createElement("div");
-    grid.className = "shop-grid";
+    grid.className = "stack-cards";
     container.appendChild(grid);
 
     ["practice-l1", "practice-l2", "practice-l3"].forEach((lvlId) => {
@@ -73,7 +73,7 @@ export function renderPractice(app) {
         if (!lvl) return;
 
         const card = document.createElement("div");
-        let cardClass = "tes-card card glass";
+        let cardClass = "tes-card card glass stack-card";
         let emoji = "✍️";
         let statusLabel = "Tersedia";
         let statusClass = "unlocked";
@@ -92,7 +92,7 @@ export function renderPractice(app) {
             emoji = "🏆";
             statusLabel = "Selesai";
             statusClass = "completed";
-            actionText = `Ulangi (${lvl.score}%)`;
+            actionText = `Lihat Hasil (${lvl.score}%)`;
         } else {
             cardClass += " active-level";
         }
@@ -113,9 +113,10 @@ export function renderPractice(app) {
         const btn = card.querySelector(".btn-tes-action");
         if (!disabled) {
             if (lvlId === "practice-l1" || lvlId === "practice-l2" || lvlId === "practice-l3") {
-                // Latihan = video simulasi + form lembar jawab (tanpa popup informasi)
+                // Latihan = video simulasi + form lembar jawab (tanpa popup informasi).
+                // Sekali pakai: renderLatihan menolak & menampilkan hasil tersimpan bila sudah selesai.
                 btn.addEventListener("click", () => {
-                    renderLatihan(app, lvlId);
+                    if (!renderLatihan(app, lvlId)) return;
                     navigateTo(app, "latihan");
                 });
             } else {
