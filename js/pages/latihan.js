@@ -6,27 +6,28 @@
 import { navigateTo } from "../navigation.js";
 import { showToast } from "../ui.js";
 import { pushSiswaResult } from "../supabase.js";
+import { practiceLatihanSelesai } from "../store.js";
 
 const LATIHAN_CONFIG = {
     "practice-l1": {
         title: "Latihan 1 — Simulasi Rapat",
         narasi: "PT Permindo Sikucha sedang mengadakan rapat pada hari Senin, 10 Juni 2024, pukul 09.00–12.00 WIB, bertempat di Ruang Rapat PT Permindo Sikucha. Rapat ini membahas penurunan omset perusahaan yang disebabkan oleh masalah kedisiplinan di bagian marketing. Simaklah simulasi rapat berikut, kemudian buatlah notula rapat sesuai format yang telah kamu pelajari!",
-        videoSrc: "https://www.youtube.com/embed/8a8DgYHNC9Q"
+        videoSrc: "https://www.youtube.com/embed/ZwK2DS2vPQA"
     },
     "practice-l2": {
         title: "Latihan 2 — Simulasi Rapat",
         narasi: "PT Sinar Abadi Jaya sedang mengadakan rapat pada hari Rabu, 25 September 2024, pukul 13.00–15.00 WIB, bertempat di Ruang Rapat Utama Kantor Pusat. Rapat ini membahas kondisi keuangan dan pemasaran perusahaan yang sedang mengalami penurunan. Simaklah simulasi rapat berikut, kemudian buatlah notula rapat sesuai format yang telah kamu pelajari!",
-        videoSrc: "https://www.youtube.com/embed/Gq6ZXea1p0E"
+        videoSrc: "https://www.youtube.com/embed/e6LQbyzshE0"
     },
     "practice-l3": {
         title: "Latihan 3 — Simulasi Rapat",
         narasi: "PT Nusantara Bangun Karya sedang mengadakan rapat evaluasi kinerja pegawai pada hari Rabu, 31 Agustus 2022, pukul 08.00–11.00 WIB, bertempat di Hotel The Langham 2, Ruang B, Jakarta Pusat. Simaklah simulasi rapat berikut, kemudian buatlah notula rapat sesuai format yang telah kamu pelajari!",
-        videoSrc: "https://www.youtube.com/embed/nhmcJFQBtu8"
+        videoSrc: "https://www.youtube.com/embed/Hzb4uTb_334"
     },
     expert: {
         title: "Tantangan Akhir — Simulasi Rapat",
         narasi: "Sirclo Store sedang mengadakan rapat pada hari Jumat, 21 Oktober 2022, pukul 08.00–10.00 WIB, bertempat di Ruang Meeting Sirclo Store, untuk membahas penurunan omset perusahaan. Simaklah simulasi rapat berikut dengan saksama, kemudian buatlah notula rapat sesuai format yang telah kamu pelajari!",
-        videoSrc: "https://www.youtube.com/embed/DGW5Vkq4cWI"
+        videoSrc: "https://www.youtube.com/embed/fMUP8CxNv3w"
     }
 };
 
@@ -56,7 +57,7 @@ const RUBRIK_NOTULA = {
             { label: "Waktu", rentang: ["09:00", "12:00"] },
             { label: "Tempat", groups: [["ruang rapat"], ["pt permindo sikucha"]] },
             { label: "Organisasi Rapat", bebas: true },
-            { label: "Peserta Rapat", groups: [["pemasaran"], ["kepegawaian", "hrd"], ["umum"], ["keuangan"]] }
+            { label: "Peserta Rapat", groups: [["pimpinan", "pemimpin"], ["sekretaris"], ["pemasaran"], ["kepegawaian", "hrd"], ["umum"], ["keuangan"]] }
         ],
         // Ketepatan susunan acara (10 poin)
         acara: { label: "Susunan Acara", groups: [["pembukaan"], ["laporan", "diskusi"], ["penutup"]] },
@@ -65,8 +66,7 @@ const RUBRIK_NOTULA = {
             label: "Isi Rapat",
             pembicara: [
                 { nama: ["pemasaran"], groups: [["karyawan tidak disiplin"], ["target tidak tercapai", "omset tidak tercapai"], ["teguran belum efektif"]] },
-                { nama: ["kepegawaian", "hrd"], groups: [["lebih dari 5 kali absen tanpa alasan jelas"], ["sudah ada peringatan tertulis"], ["perlu tindakan lebih tegas"]] },
-                { nama: ["umum"], groups: [["absensi masih manual"], ["usul sistem absensi digital"]] },
+                { nama: ["kepegawaian", "hrd", "umum"], groups: [["lebih dari 5 kali absen tanpa alasan jelas"], ["sudah ada peringatan tertulis"], ["perlu tindakan lebih tegas"], ["absensi masih manual"], ["usul sistem absensi digital"]] },
                 { nama: ["keuangan"], groups: [["omset turun 15% dalam 3 bulan"], ["usul restrukturisasi sistem insentif"]] }
             ]
         },
@@ -82,7 +82,7 @@ const RUBRIK_NOTULA = {
             { label: "Waktu", rentang: ["13:00", "15:00"] },
             { label: "Tempat", groups: [["ruang rapat utama"], ["kantor pusat"]] },
             { label: "Organisasi Rapat", bebas: true },
-            { label: "Peserta Rapat", groups: [["pemasaran"], ["keuangan"], ["sdm"], ["produksi"], ["moderator"], ["notulis"]] }
+            { label: "Peserta Rapat", groups: [["pimpinan", "pemimpin"], ["sekretaris"], ["moderator"], ["pemasaran"], ["keuangan"], ["sdm"], ["produksi"]] }
         ],
         // Ketepatan susunan acara (10 poin)
         acara: { label: "Susunan Acara", groups: [["pembukaan"], ["laporan", "diskusi"], ["penutup"]] },
@@ -92,8 +92,7 @@ const RUBRIK_NOTULA = {
             pembicara: [
                 { nama: ["pemasaran"], groups: [["penjualan menurun", "penurunan penjualan", "penjualan mengalami penurunan"], ["fitur produk kurang menarik", "fitur kurang menarik"], ["perubahan tren konsumen", "tren konsumen"]] },
                 { nama: ["keuangan"], groups: [["keuangan menurun", "keuangan mengalami penurunan", "penurunan keuangan"], ["kurangi kegiatan tidak perlu", "kegiatan tidak perlu"], ["awasi ketat keuangan", "awasi ketat"]] },
-                { nama: ["sdm"], groups: [["efisiensi"], ["tingkatkan mutu produk", "mutu produk"], ["perluas pasar", "perluasan pasar"], ["tingkatkan laba", "laba"]] },
-                { nama: ["produksi"], groups: [["ekspansi"], ["ekspansi perlu dilakukan", "perlu dilakukan"]] }
+                { nama: ["sdm", "produksi"], groups: [["efisiensi"], ["tingkatkan mutu produk", "mutu produk"], ["perluas pasar", "perluasan pasar"], ["tingkatkan laba", "laba"], ["ekspansi", "perlu dilakukan"]] }
             ]
         },
         // Ketepatan hasil rapat (30 poin)
@@ -107,12 +106,8 @@ const RUBRIK_NOTULA = {
             { label: "Hari/Tanggal", exact: "2022-08-31" },
             { label: "Waktu", rentang: ["08:00", "11:00"] },
             { label: "Tempat", groups: [["hotel the langham", "the langham"], ["ruang b"], ["jakarta pusat"]] },
-            {
-                label: "Organisasi Rapat",
-                pemimpin: [["muhammad wildan rezi", "wildan rezi", "wildan"]],
-                notulis: [["alaika syamsa", "alaika"]]
-            },
-            { label: "Peserta Rapat", groups: [["kepegawaian"], ["produksi"], ["pemasaran"], ["direktur"]] }
+            { label: "Organisasi Rapat", bebas: true },
+            { label: "Peserta Rapat", groups: [["pimpinan", "pemimpin"], ["sekretaris"], ["kepegawaian"], ["produksi"], ["pemasaran"]] }
         ],
         // Ketepatan susunan acara (10 poin)
         acara: { label: "Susunan Acara", groups: [["pembukaan"], ["pembahasan", "diskusi"], ["penutup"]] },
@@ -131,7 +126,7 @@ const RUBRIK_NOTULA = {
                     ]
                 },
                 {
-                    nama: ["staff", "staf", "karyawan", "yuliah", "lutfiah", "rohani", "ambar"],
+                    nama: ["produksi", "pemasaran", "staff", "staf", "karyawan", "yuliah", "lutfiah", "rohani", "ambar"],
                     groups: [
                         ["hari libur kurang", "libur kurang", "cuti hanya 1 minggu"],
                         ["kerja hari minggu", "hari minggu"],
@@ -141,7 +136,7 @@ const RUBRIK_NOTULA = {
                     ]
                 },
                 {
-                    nama: ["direktur utama", "wildan"],
+                    nama: ["pimpinan", "pemimpin", "direktur utama", "wildan"],
                     groups: [["kebijakan baru", "kebijakan"], ["kedisiplinan"]]
                 },
                 {
@@ -152,7 +147,7 @@ const RUBRIK_NOTULA = {
                     ]
                 },
                 {
-                    nama: ["kepala bagian produksi", "bella"],
+                    nama: ["kepala bagian produksi", "produksi", "bella"],
                     groups: [
                         ["reward untuk kerja di hari libur", "reward"],
                         ["cuti ditambah", "1 bulan"],
@@ -160,7 +155,7 @@ const RUBRIK_NOTULA = {
                     ]
                 },
                 {
-                    nama: ["kepala bagian pemasaran", "wanda"],
+                    nama: ["kepala bagian pemasaran", "pemasaran", "wanda"],
                     groups: [
                         ["reward non-uang", "piagam", "sertifikat"],
                         ["toleransi keterlambatan"],
@@ -184,15 +179,11 @@ const RUBRIK_NOTULA = {
             { label: "Hari/Tanggal", exact: "2022-10-21" },
             { label: "Waktu", rentang: ["08:00", "10:00"] },
             { label: "Tempat", groups: [["ruang meeting"], ["sirclo store", "sirclo"]] },
-            {
-                label: "Organisasi Rapat",
-                pemimpin: [["rika ramadhania", "rika"]],
-                notulis: [["jeni wulandari", "jeni"]]
-            },
-            { label: "Peserta Rapat", groups: [["pemasaran"], ["produksi"], ["keuangan"], ["notulis", "dokumenter"]] }
+            { label: "Organisasi Rapat", bebas: true },
+            { label: "Peserta Rapat", groups: [["pimpinan", "pemimpin"], ["sekretaris"], ["notulis", "dokumenter"], ["pemasaran"], ["produksi"], ["keuangan"]] }
         ],
         // Ketepatan susunan acara (10 poin)
-        acara: { label: "Susunan Acara", groups: [["pembukaan"], ["pembahasan"], ["penutup"]] },
+        acara: { label: "Susunan Acara", groups: [["pembukaan"], ["pembahasan", "diskusi"], ["penutup"]] },
         // Ketepatan isi rapat (40 poin) — dinilai per pembicara
         isi: {
             label: "Isi Rapat",
@@ -639,8 +630,11 @@ export function initLatihan(app) {
         }
 
         // Practice: buka kunci latihan berikutnya & tampilkan halaman Hasil
+        // (Expert tetap terkunci sampai ketiga latihan Practice selesai).
         const nextId = NEXT_LEVEL[lvlId];
-        if (nextId) app.state.tests[nextId].status = "unlocked";
+        if (nextId && (nextId !== "expert" || practiceLatihanSelesai(app.state))) {
+            app.state.tests[nextId].status = "unlocked";
+        }
         document.getElementById("latihan-score").textContent = lvl.score;
         document.getElementById("btn-latihan-next-label").textContent = "Lanjut ke Latihan Berikutnya";
         const feedback = document.getElementById("latihan-feedback");

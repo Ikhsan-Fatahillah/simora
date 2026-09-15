@@ -6,6 +6,7 @@
  * supabase-js dimuat via CDN (lihat index.html), global: window.supabase.
  */
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, emailForUsername } from "./config.js";
+import { practiceLatihanSelesai } from "./store.js";
 
 let client = null;
 
@@ -96,10 +97,21 @@ export async function pullSiswaState(stored) {
             for (const r of pr) {
                 const lv = stored.tests && stored.tests[r.stage_key];
                 if (!lv) continue;
-                lv.status = r.status;
+                // Jangan turunkan status yang sudah "completed" di perangkat ini:
+                // baris DB bisa tertinggal (push async) dan membuat badge hilang.
+                if (lv.status !== "completed") lv.status = r.status;
                 if (typeof r.score === "number") lv.score = r.score;
                 const d = fmtTgl(r.done_at);
                 if (d) lv.date = d;
+            }
+        }
+
+        // Expert wajib menunggu seluruh latihan Practice selesai → paksa kunci bila belum.
+        if (stored.tests?.expert) {
+            if (practiceLatihanSelesai(stored)) {
+                if (stored.tests.expert.status === "locked") stored.tests.expert.status = "unlocked";
+            } else {
+                stored.tests.expert.status = "locked";
             }
         }
 

@@ -248,24 +248,31 @@ async function init() {
     // Alur Beginner: materi -> contoh notula -> latihan 1
     document.getElementById("btn-materi-next").addEventListener("click", () => showBeginnerSection("contoh"));
 
-    // Tandai Beginner selesai & buka kunci Practice (dipakai tombol menu & akhir alur)
+    // Tandai Beginner selesai & buka kunci Practice.
+    // Ini SATU-SATUNYA pemicu Beginner selesai: tombol "Lanjut ke Practice Level"
+    // dan "Lanjut ke Latihan 1" di halaman Beginner (tidak disimpulkan dari tahap lain).
     const selesaikanBeginner = () => {
         const beginner = app.state.tests.beginner;
+        const sudahSelesai = beginner.status === "completed";
+
         beginner.status = "completed";
         beginner.score = 100;
-        beginner.date = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric' });
+        beginner.date = beginner.date || new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric' });
         app.state.tests.practice.status = "unlocked";
         app.state.tests["practice-l1"].status = "unlocked";
         app.saveState();
+
+        // Sudah pernah diklik sebelumnya → jangan kirim attempt ganda.
+        if (sudahSelesai) return;
         pushSiswaResult(app.state, { levelId: "beginner", score: 100, completed: true, answers: null })
             .catch(err => console.warn("Gagal sinkron beginner:", err));
     };
 
     // Akhir alur: langsung masuk Latihan 1
     document.getElementById("btn-contoh-next").addEventListener("click", () => {
+        selesaikanBeginner();
         // Latihan 1 sekali pakai: kalau sudah selesai, tolak & tampilkan hasil sebelumnya.
         if (tolakKerjaUlang(app, "practice-l1")) return;
-        selesaikanBeginner();
         if (!renderLatihan(app, "practice-l1")) return;
         navigateTo(app, "latihan");
         showToast("Materi selesai! Lanjut Latihan 1.", "success");

@@ -7,6 +7,7 @@ import { showToast, closeQuestOverlay, levelUpSplash, showConfirm } from "../ui.
 import { fireConfetti } from "../confetti.js";
 import { playCorrect, playWrong, playSuccess } from "../sfx.js";
 import { pushSiswaResult } from "../supabase.js";
+import { practiceLatihanSelesai } from "../store.js";
 
 export function startQuiz(app, levelId) {
     const lvl = app.state.tests[levelId];
@@ -146,7 +147,10 @@ function finishQuiz(app) {
         } else if (lvlId === "practice-l2") {
             app.state.tests["practice-l3"].status = "unlocked";
         } else if (lvlId === "practice-l3") {
-            app.state.tests.expert.status = "unlocked";
+            // Expert baru terbuka bila latihan 1 & 2 juga sudah selesai.
+            if (practiceLatihanSelesai(app.state)) {
+                app.state.tests.expert.status = "unlocked";
+            }
         }
 
         // Level Up logic

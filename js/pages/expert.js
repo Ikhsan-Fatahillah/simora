@@ -8,6 +8,7 @@
  */
 
 import { navigateTo } from "../navigation.js";
+import { showToast } from "../ui.js";
 import { playCorrect, playWrong } from "../sfx.js";
 import { fireConfetti } from "../confetti.js";
 import { renderLatihan, tolakKerjaUlang } from "./latihan.js";
@@ -68,6 +69,11 @@ export function renderExpert(app) {
     const btn = card.querySelector(".btn-tes-action");
     if (!disabled) {
         btn.addEventListener("click", () => startExpertQuiz(app));
+    } else {
+        // Kartu terkunci: beri tahu alasannya saat diklik.
+        card.addEventListener("click", () => {
+            showToast("🔒 Expert masih terkunci. Selesaikan Latihan 1, 2, dan 3 di Practice dulu.", "error");
+        });
     }
 
     container.appendChild(card);
@@ -75,7 +81,10 @@ export function renderExpert(app) {
 
 export function startExpertQuiz(app) {
     const lvl = app.state.tests.expert;
-    if (!lvl || lvl.status === "locked") return;
+    if (!lvl || lvl.status === "locked") {
+        showToast("🔒 Expert masih terkunci. Selesaikan Latihan 1, 2, dan 3 di Practice dulu.", "error");
+        return;
+    }
 
     // Sekali pakai: Expert yang sudah selesai tidak bisa dikerjakan ulang.
     if (tolakKerjaUlang(app, "expert")) return;

@@ -10,9 +10,9 @@ import { showToast } from "../ui.js";
 const ROW_ORDER = ["beginner", "practice-l1", "practice-l2", "practice-l3", "expert"];
 const TAHAP_NAME = {
     "beginner": "Beginner",
-    "practice-l1": "Latihan 1",
-    "practice-l2": "Latihan 2",
-    "practice-l3": "Latihan 3",
+    "practice-l1": "Practice 1",
+    "practice-l2": "Practice 2",
+    "practice-l3": "Practice 3",
     "expert": "Expert"
 };
 
@@ -243,11 +243,13 @@ export async function renderAdminRekap(app) {
     const body = students.map((s, i) => {
         const stageCells = stageRows(s).map(r => {
             const attempts = (s.attempts && s.attempts[r.id]) || [];
+            // Beginner tidak punya lembar jawaban → tombol "Lihat Jawaban" disembunyikan.
+            const bisaLihatJawaban = attempts.length > 0 && r.id !== "beginner";
             return `
             <td style="padding: 14px 10px; vertical-align: top; text-align: center; border-bottom: 1px solid var(--border-color);">
                 <div style="font-weight: 800; font-size: 1.05rem; color: ${r.status === "completed" ? "var(--success)" : "var(--text-secondary)"};">${scoreText(r.score)}</div>
                 <div style="margin-top: 6px;">${pill(r.status)}</div>
-                ${attempts.length ? `
+                ${bisaLihatJawaban ? `
                 <button class="btn-tes-action js-view-answers" data-uid="${s.id}" data-stage="${r.id}"
                     style="margin-top: 8px; padding: 5px 10px; font-size: 0.72rem;">
                     Lihat Jawaban${attempts.length > 1 ? ` (${attempts.length})` : ""}

@@ -269,6 +269,15 @@ export function stateKeyFor(userId) {
     return userId ? `simora_state_${userId}` : DEFAULT_STORAGE_KEY;
 }
 
+/**
+ * Expert hanya boleh diakses setelah SELURUH latihan Practice (1, 2, 3) selesai.
+ * Dipakai di boot, sinkron DB, kuis, dan penyelesaian form latihan agar aturannya konsisten.
+ */
+export function practiceLatihanSelesai(state) {
+    return ["practice-l1", "practice-l2", "practice-l3"]
+        .every(id => state.tests?.[id]?.status === "completed");
+}
+
 export function loadState(key = DEFAULT_STORAGE_KEY) {
     const stored = localStorage.getItem(key);
     const state = stored ? JSON.parse(stored) : JSON.parse(JSON.stringify(DEFAULT_STATE));
@@ -293,9 +302,13 @@ export function loadState(key = DEFAULT_STORAGE_KEY) {
         state.tests["practice-l1"].status = "unlocked";
     }
 
-    // Expert langsung dapat diakses (mode pengembangan/testing)
-    if (state.tests.expert && state.tests.expert.status === "locked") {
-        state.tests.expert.status = "unlocked";
+    // Expert terkunci sampai seluruh latihan Practice (1–3) selesai.
+    if (state.tests.expert) {
+        if (practiceLatihanSelesai(state)) {
+            if (state.tests.expert.status === "locked") state.tests.expert.status = "unlocked";
+        } else if (state.tests.expert.status !== "locked") {
+            state.tests.expert.status = "locked";
+        }
     }
 
     // Backward compat: soal Expert versi lama (3 soal pemrograman) → 10 soal notula baru
@@ -305,18 +318,9 @@ export function loadState(key = DEFAULT_STORAGE_KEY) {
         state.tests.expert.questions = JSON.parse(JSON.stringify(expertDefault.questions));
     }
 
-    // Auto-repair state hasil testing yang tidak konsisten:
-    // 1) Beginner adalah prasyarat latihan 1 → bila Latihan 1 selesai, Beginner otomatis dianggap selesai.
-    if (state.tests["practice-l1"]?.status === "completed" &&
-        state.tests.beginner?.status !== "completed") {
-        state.tests.beginner.status = "completed";
-    }
-    // 2) Expert hanya bisa tuntas bila seluruh tahap sebelumnya selesai → bila tidak, kembalikan ke unlocked.
-    const chainDone = ["beginner", "practice-l1", "practice-l2", "practice-l3"]
-        .every(id => state.tests[id]?.status === "completed");
-    if (state.tests.expert?.status === "completed" && !chainDone) {
-        state.tests.expert.status = "unlocked";
-    }
+    // Beginner TIDAK disimpulkan dari tahap lain: statusnya murni dari klik
+    // "Lanjut ke Practice Level" / "Lanjut ke Latihan 1" di halaman Beginner
+    // (lihat selesaikanBeginner di main.js).
 
     return state;
 }
