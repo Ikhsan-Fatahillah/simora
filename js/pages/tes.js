@@ -93,6 +93,12 @@ export function renderPractice(app) {
             statusLabel = "Selesai";
             statusClass = "completed";
             actionText = `Lihat Hasil (${lvl.score}%)`;
+        } else if (typeof lvl.score === "number") {
+            // Sudah dikerjakan tapi belum lulus KKM → wajib diulang.
+            cardClass += " active-level";
+            emoji = "🔁";
+            statusLabel = `Belum Lulus · ${lvl.score}%`;
+            actionText = "Ulangi Latihan";
         } else {
             cardClass += " active-level";
         }

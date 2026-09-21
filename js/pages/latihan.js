@@ -5,7 +5,7 @@
 
 import { navigateTo } from "../navigation.js";
 import { showToast } from "../ui.js";
-import { pushSiswaResult } from "../supabase.js";
+import { logAttempt, pushSiswaResult } from "../supabase.js";
 import { practiceLatihanSelesai } from "../store.js";
 
 const LATIHAN_CONFIG = {
@@ -38,18 +38,27 @@ const NEXT_LEVEL = {
 };
 
 /**
+ * Latihan yang WAJIB lulus KKM sebelum lanjut ke tahap berikutnya.
+ * Bila belum lulus, statusnya tetap "unlocked" (boleh diulang) dan tahap
+ * berikutnya tetap terkunci. Kuis Expert tidak termasuk aturan ini.
+ */
+const WAJIB_LULUS = ["practice-l1", "practice-l2", "practice-l3"];
+
+/**
  * Rubrik penilaian notula (total bobot 100 poin).
+ * Semua teks (jawaban & kata kunci) dinormalisasi dulu: huruf kecil, tanda baca/simbol
+ * dianggap spasi, spasi berlebih dirapikan.
  * Aturan cocok kata kunci:
- * - groups  → SEMUA grup harus terpenuhi; tiap grup berisi alternatif (salah satu cukup).
+ * - groups  → cukup SALAH SATU kata kunci pada daftar yang muncul di jawaban
+ *             (gabungan seluruh grup & alternatif, tanpa bobot sebagian).
  * - exact   → field pakai selector (tanggal), nilainya harus sama persis.
  * - rentang → field waktu (mulai & selesai), keduanya harus sama persis.
- * - pemimpin + notulis → field Organisasi Rapat dinilai dari kedua nama.
  * - bebas   → asal terisi, otomatis benar.
  * Skor tiap bagian = bobot × (jumlah benar / jumlah yang dinilai), lalu dibulatkan.
  */
 const RUBRIK_NOTULA = {
     "practice-l1": {
-        kkm: 70,
+        kkm: 75,
         // Kelengkapan identitas rapat (20 poin)
         identitas: [
             { label: "Agenda Rapat", groups: [["disiplin"], ["omset"]] },
@@ -249,9 +258,9 @@ const RUBRIK_NOTULA = {
 /** Bobot tiap bagian penilaian (total 100) */
 const BOBOT = { identitas: 20, acara: 10, isi: 40, penutup: 30 };
 
-/** Normalisasi jawaban: huruf kecil & spasi dirapikan. */
+/** Normalisasi jawaban: huruf kecil, tanda baca/simbol jadi spasi, spasi dirapikan. */
 function norm(v) {
-    return (v || "").toString().toLowerCase().replace(/\s+/g, " ").trim();
+    return (v || "").toString().toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
 
 /** Satu grup benar bila salah satu alternatifnya ada di dalam jawaban. */
@@ -259,16 +268,19 @@ function grupCocok(teks, alternatif) {
     return alternatif.some(a => teks.includes(norm(a)));
 }
 
-/** Field benar bila semua grupnya terpenuhi. */
+/** Field benar bila minimal satu grup (salah satu kata kunci) muncul di jawaban. */
 function fieldCocok(teks, grup) {
-    return grup.every(g => grupCocok(teks, g));
+    return grup.some(g => grupCocok(teks, g));
 }
 
 /** Nilai satu field identitas berdasarkan aturan rubriknya. */
 function fieldBenar(item, jawaban) {
     if (item.bebas) return true;
-    if (item.exact) return norm(jawaban) === item.exact;
-    if (item.rentang) return norm(jawaban.mulai) === item.rentang[0] && norm(jawaban.selesai) === item.rentang[1];
+    if (item.exact) return norm(jawaban) === norm(item.exact);
+    if (item.rentang) {
+        return norm(jawaban.mulai) === norm(item.rentang[0])
+            && norm(jawaban.selesai) === norm(item.rentang[1]);
+    }
     if (item.pemimpin) {
         return fieldCocok(norm(jawaban.pemimpin), item.pemimpin)
             && fieldCocok(norm(jawaban.notulis), item.notulis);
@@ -451,6 +463,7 @@ export function renderLatihan(app, lvlId) {
 
     app.latihanActive = lvlId;
     app.latihanBack = lvlId === "expert" ? "expert" : "practice";
+    app.latihanRetry = false;
 
     document.getElementById("latihan-title").textContent = cfg.title;
     document.getElementById("latihan-narasi").textContent = cfg.narasi;
@@ -608,15 +621,34 @@ export function initLatihan(app) {
         // Penilaian: cocokkan tiap field dengan kata kunci pada rubrik.
         const nilai = nilaiNotula(lvlId, notulaData);
 
-        // Tandai selesai
-        lvl.status = "completed";
+        // Latihan Practice wajib lulus KKM untuk lanjut. Expert tidak diulang:
+        // apa pun hasilnya tetap selesai dan lanjut ke form notula terakhir.
+        const wajibUlang = !!nilai && !nilai.lulus && WAJIB_LULUS.includes(lvlId);
+
+        // Belum lulus → status tetap "unlocked" supaya form bisa dikerjakan ulang.
+        lvl.status = wajibUlang ? "unlocked" : "completed";
         lvl.score = nilai ? nilai.score : 100;
         lvl.date = new Date().toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric' });
+
+        // Latihan berikutnya hanya terbuka bila latihan ini lulus.
+        if (!wajibUlang) {
+            const nextId = NEXT_LEVEL[lvlId];
+            if (nextId && (nextId !== "expert" || practiceLatihanSelesai(app.state))) {
+                app.state.tests[nextId].status = "unlocked";
+            }
+        }
         app.saveState();
 
-        // Kirim hasil ke Supabase (status stage + attempt + stats). Aman gagal (offline).
-        pushSiswaResult(app.state, { levelId: lvlId, score: lvl.score, completed: true, answers: notulaData })
-            .catch(err => console.warn("Gagal sinkron latihan:", err));
+        if (wajibUlang) {
+            // Belum lulus: tetap dicatat sebagai riwayat pengerjaan,
+            // tanpa mengubah status stage di database.
+            logAttempt(lvlId, notulaData, lvl.score)
+                .catch(err => console.warn("Gagal simpan riwayat latihan:", err));
+        } else {
+            // Kirim hasil ke Supabase (status stage + attempt + stats). Aman gagal (offline).
+            pushSiswaResult(app.state, { levelId: lvlId, score: lvl.score, completed: true, answers: notulaData })
+                .catch(err => console.warn("Gagal sinkron latihan:", err));
+        }
 
         // Expert: tantangan akhir → langsung kembali ke menu Expert (tanpa halaman skor)
         if (lvlId === "expert") {
@@ -629,16 +661,22 @@ export function initLatihan(app) {
             return;
         }
 
-        // Practice: buka kunci latihan berikutnya & tampilkan halaman Hasil
-        // (Expert tetap terkunci sampai ketiga latihan Practice selesai).
-        const nextId = NEXT_LEVEL[lvlId];
-        if (nextId && (nextId !== "expert" || practiceLatihanSelesai(app.state))) {
-            app.state.tests[nextId].status = "unlocked";
-        }
+        // Practice: tampilkan halaman Hasil. Dengan catatan Expert tetap terkunci
+        // sampai ketiga latihan Practice selesai (sudah diatur di atas).
+        app.latihanRetry = wajibUlang;
         document.getElementById("latihan-score").textContent = lvl.score;
-        document.getElementById("btn-latihan-next-label").textContent = "Lanjut ke Latihan Berikutnya";
+        document.getElementById("btn-latihan-next-label").textContent =
+            wajibUlang ? `Ulangi ${lvl.title}` : "Lanjut ke Latihan Berikutnya";
+
         const feedback = document.getElementById("latihan-feedback");
-        if (nilai) {
+        if (wajibUlang) {
+            const rincian = nilai.salah.length
+                ? `<br><span style="font-weight: 600;">Belum sesuai: ${nilai.salah.join(", ")}</span>`
+                : "";
+            feedback.innerHTML = `⚠️ Belum lulus KKM ${nilai.kkm}. Latihan ini harus diulang dulu,`
+                + ` latihan berikutnya masih terkunci.${rincian}`;
+            feedback.style.color = "var(--danger)";
+        } else if (nilai) {
             const status = nilai.lulus
                 ? `✅ Lulus KKM (${nilai.kkm})`
                 : `⚠️ Belum lulus KKM ${nilai.kkm}`;
@@ -656,6 +694,15 @@ export function initLatihan(app) {
 
 export function initLatihanNext(app) {
     document.getElementById("btn-latihan-next").addEventListener("click", () => {
+        // Belum lulus KKM → langsung buka lagi form latihan yang sama.
+        if (app.latihanRetry) {
+            const lvlId = app.latihanActive;
+            app.latihanRetry = false;
+            if (lvlId && renderLatihan(app, lvlId)) {
+                navigateTo(app, "latihan");
+                return;
+            }
+        }
         navigateTo(app, app.latihanBack || "practice", { skipGreeting: true });
     });
 }
