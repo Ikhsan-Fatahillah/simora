@@ -25,20 +25,20 @@ const ATP_CONTENT = {
             <div class="quests-list" style="gap: 12px; margin-top: 12px;">
                 <div class="quest-item" style="background: rgba(59, 130, 246, 0.03); border-color: rgba(59, 130, 246, 0.15);">
                     <div class="quest-details">
-                        <span class="quest-item-title" style="font-weight: 700; color: #1d4ed8;">TP-01: Memahami Notula Rapat</span>
-                        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 4px;">Memahami pengertian dan fungsi notula rapat.</p>
+                        <span class="quest-item-title" style="font-weight: 700; color: #1d4ed8;">TP-01: Memahami ruang lingkup notula rapat</span>
+                        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 4px;">Memahami ruang lingkup, pengertian, dan fungsi notula rapat.</p>
                     </div>
                 </div>
                 <div class="quest-item" style="background: rgba(168, 85, 247, 0.03); border-color: rgba(168, 85, 247, 0.15);">
                     <div class="quest-details">
-                        <span class="quest-item-title" style="font-weight: 700; color: #d8b4fe;">TP-02: Mengidentifikasi Unsur Notula Rapat</span>
-                        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 4px;">Mengidentifikasi unsur-unsur/format notula rapat.</p>
+                        <span class="quest-item-title" style="font-weight: 700; color: #d8b4fe;">TP-02: Memahami tata cara pembuatan notula rapat</span>
+                        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 4px;">Memahami tahapan dan tata cara penyusunan notula rapat.</p>
                     </div>
                 </div>
                 <div class="quest-item" style="background: rgba(236, 72, 153, 0.03); border-color: rgba(236, 72, 153, 0.15);">
                     <div class="quest-details">
-                        <span class="quest-item-title" style="font-weight: 700; color: #fbcfe8;">TP-03: Membuat Notula Rapat</span>
-                        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 4px;">Membuat notula rapat berdasarkan jalannya rapat.</p>
+                        <span class="quest-item-title" style="font-weight: 700; color: #fbcfe8;">TP-03: Memahami penyimpanan dan distribusi notula rapat</span>
+                        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 4px;">Memahami penyimpanan dan pendistribusian notula rapat.</p>
                     </div>
                 </div>
             </div>`
